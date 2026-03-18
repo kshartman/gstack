@@ -25,6 +25,13 @@ if [ ! -d "$DEST" ]; then
   cp -r "$GSTACK_DIR" "$DEST"
 fi
 
+if ! command -v bun &>/dev/null; then
+  echo "Error: bun is not installed."
+  echo "Install it with:  curl -fsSL https://bun.sh/install | bash"
+  echo "Then restart your shell and re-run this script."
+  exit 1
+fi
+
 cd "$DEST"
 git reset --hard origin/main
 bun install
