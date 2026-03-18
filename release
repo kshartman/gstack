@@ -33,6 +33,7 @@ if ! command -v bun &>/dev/null; then
 fi
 
 cd "$DEST"
+git fetch origin
 git reset --hard origin/main
 bun install
 bun run build
