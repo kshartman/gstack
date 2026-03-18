@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.6.4.2] - 2026-03-18
+
+### Added
+
+- **`./release` script for safe copy-based installs.** You can now install gstack as a standalone copy (not a symlink), so half-written edits in your dev repo don't affect live sessions. Run `./release` to copy, build, and update `~/.claude/skills/gstack/`. Supports `--path` for custom destinations.
+
 ## [0.6.4.1] - 2026-03-18
 
 ### Added
