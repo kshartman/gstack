@@ -3,7 +3,7 @@
 set -e
 
 GSTACK_DIR="$(cd "$(dirname "$0")" && pwd)"
-DEST="${1:-$HOME/.claude/skills/gstack}"
+DEST="$HOME/.claude/skills/gstack"
 
 # Parse --path option
 while [[ $# -gt 0 ]]; do
@@ -15,6 +15,7 @@ done
 
 if [ ! -d "$DEST" ]; then
   echo "Destination not found — copying fresh install..."
+  mkdir -p "$(dirname "$DEST")"
   cp -r "$GSTACK_DIR" "$DEST"
 fi
 
