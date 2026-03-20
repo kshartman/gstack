@@ -1,35 +1,36 @@
 #!/usr/bin/env bash
-# gstack release — copy/update the active skill install
+# gstack release — install/update gstack from git
 set -e
 
-GSTACK_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO="git@github.com:kshartman/gstack.git"
 DEST="$HOME/.claude/skills/gstack"
 YES=0
 
 # Parse options
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --repo) REPO="$2"; shift 2 ;;
     --path) DEST="$2"; shift 2 ;;
     -y) YES=1; shift ;;
     *) shift ;;
   esac
 done
 
-if [ ! -d "$DEST" ]; then
-  if [ "$YES" -eq 0 ]; then
-    read -rp "Destination $DEST does not exist. Create it? [y/N] " answer
-    [[ "$answer" =~ ^[Yy]$ ]] || { echo "Aborted."; exit 1; }
-  fi
-  echo "Copying fresh install to $DEST..."
-  mkdir -p "$(dirname "$DEST")"
-  cp -r "$GSTACK_DIR" "$DEST"
-fi
-
 if ! command -v bun &>/dev/null; then
   echo "Error: bun is not installed."
   echo "Install it with:  curl -fsSL https://bun.sh/install | bash"
   echo "Then restart your shell and re-run this script."
   exit 1
+fi
+
+if [ ! -d "$DEST" ]; then
+  if [ "$YES" -eq 0 ]; then
+    read -rp "Clone gstack to $DEST? [y/N] " answer
+    [[ "$answer" =~ ^[Yy]$ ]] || { echo "Aborted."; exit 1; }
+  fi
+  echo "Cloning $REPO to $DEST..."
+  mkdir -p "$(dirname "$DEST")"
+  git clone "$REPO" "$DEST"
 fi
 
 cd "$DEST"
