@@ -53,7 +53,7 @@ for _PF in ~/.gstack/analytics/.pending-*; do [ -f "$_PF" ] && ~/.claude/skills/
 If `PROACTIVE` is `"false"`, do not proactively suggest gstack skills — only invoke
 them when the user explicitly asks. The user opted out of proactive suggestions.
 
-If output shows `FORK_HAS_UPDATE <old> <new>`: the user's fork already has v{new}. Auto-upgrade in place:
+If output shows `FORK_HAS_UPDATE <old> <new>`: the user's fork already has v{new}. Ask: "gstack **v{new}** is available in your fork (you're on v{old}). Upgrade now?" If they say yes, run:
 ```bash
 cd ~/.claude/skills/gstack
 git fetch origin
@@ -63,7 +63,7 @@ bun run build
 echo "{old}" > ~/.gstack/just-upgraded-from
 rm -f ~/.gstack/last-update-check
 ```
-Then tell user "gstack upgraded to v{new}!" and continue with the original skill.
+Then tell user "gstack upgraded to v{new}!" and continue with the original skill. If they say no, continue without upgrading.
 
 If output shows `UPGRADE_AVAILABLE <old> <new>`:
 - If `UPGRADE_MODE` is `manual`: tell the user "gstack **v{new}** is available upstream (you're on v{old}). Merge upstream into your fork, then run `./release`." Do NOT offer to auto-upgrade or read the upgrade skill.
