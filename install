@@ -25,6 +25,17 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# ─── Prereq check (local) ────────────────────────────────────
+check_prereqs() {
+  local missing=()
+  command -v git &>/dev/null || missing+=(git)
+  command -v curl &>/dev/null || missing+=(curl)
+  if [ ${#missing[@]} -gt 0 ]; then
+    echo "Error: missing required tools: ${missing[*]}"
+    exit 1
+  fi
+}
+
 # ─── Remote install via SSH ──────────────────────────────────
 if [ -n "$HOST" ]; then
   echo "Installing gstack on $HOST..."
@@ -36,6 +47,14 @@ DEST="$2"
 YES="$3"
 # Expand $HOME in DEST
 DEST=$(eval echo "$DEST")
+
+# Check prereqs
+for cmd in git curl; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "Error: $cmd is not installed on $(hostname)."
+    exit 1
+  fi
+done
 
 if ! command -v bun &>/dev/null; then
   if [ "$YES" -eq 1 ]; then
@@ -91,6 +110,7 @@ fi
 
 # ─── Local install ───────────────────────────────────────────
 DEST=$(eval echo "$DEST")
+check_prereqs
 
 if ! command -v bun &>/dev/null; then
   echo "Error: bun is not installed."
