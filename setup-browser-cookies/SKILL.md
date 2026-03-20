@@ -25,16 +25,9 @@ _SESSIONS=$(find ~/.gstack/sessions -mmin -120 -type f 2>/dev/null | wc -l | tr 
 find ~/.gstack/sessions -mmin +120 -type f -delete 2>/dev/null || true
 _CONTRIB=$(~/.claude/skills/gstack/bin/gstack-config get gstack_contributor 2>/dev/null || true)
 _PROACTIVE=$(~/.claude/skills/gstack/bin/gstack-config get proactive 2>/dev/null || echo "true")
-_UPGRADE_MODE=$(~/.claude/skills/gstack/bin/gstack-config get upgrade_mode 2>/dev/null || true)
-_DEV_REPO=$(~/.claude/skills/gstack/bin/gstack-config get dev_repo_path 2>/dev/null || true)
-_DEV_VER=""
-[ -n "$_DEV_REPO" ] && [ -f "$_DEV_REPO/VERSION" ] && _DEV_VER=$(cat "$_DEV_REPO/VERSION" 2>/dev/null | tr -d '[:space:]')
 _BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
 echo "BRANCH: $_BRANCH"
 echo "PROACTIVE: $_PROACTIVE"
-echo "UPGRADE_MODE: $_UPGRADE_MODE"
-echo "DEV_REPO: $_DEV_REPO"
-echo "DEV_VERSION: $_DEV_VER"
 _LAKE_SEEN=$([ -f ~/.gstack/.completeness-intro-seen ] && echo "yes" || echo "no")
 echo "LAKE_INTRO: $_LAKE_SEEN"
 _TEL=$(~/.claude/skills/gstack/bin/gstack-config get telemetry 2>/dev/null || true)
@@ -51,9 +44,20 @@ for _PF in ~/.gstack/analytics/.pending-*; do [ -f "$_PF" ] && ~/.claude/skills/
 If `PROACTIVE` is `"false"`, do not proactively suggest gstack skills — only invoke
 them when the user explicitly asks. The user opted out of proactive suggestions.
 
+If output shows `FORK_HAS_UPDATE <old> <new>`: the user's fork already has v{new}. Auto-upgrade in place:
+```bash
+cd ~/.claude/skills/gstack
+git fetch origin
+git reset --hard origin/main
+bun install
+bun run build
+echo "{old}" > ~/.gstack/just-upgraded-from
+rm -f ~/.gstack/last-update-check
+```
+Then tell user "gstack upgraded to v{new}!" and continue with the original skill.
+
 If output shows `UPGRADE_AVAILABLE <old> <new>`:
-- If `UPGRADE_MODE` is `manual` and `DEV_VERSION` matches `{new}`: the user has already pulled and merged upstream. Offer to deploy: "gstack **v{new}** is ready in your dev repo. Run `./release` to deploy?" If they say yes, run `{DEV_REPO}/release -y`.
-- If `UPGRADE_MODE` is `manual` and `DEV_VERSION` does NOT match `{new}` (or `DEV_REPO` is empty): tell the user "gstack **v{new}** is available (you're on v{old}). To update, pull and review in your dev repo, then run `./release`." Do NOT offer to auto-upgrade or read the upgrade skill.
+- If `UPGRADE_MODE` is `manual`: tell the user "gstack **v{new}** is available upstream (you're on v{old}). Merge upstream into your fork, then run `./release`." Do NOT offer to auto-upgrade or read the upgrade skill.
 - Otherwise: read `~/.claude/skills/gstack/gstack-upgrade/SKILL.md` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise AskUserQuestion with 4 options, write snooze state if declined).
 
 If `JUST_UPGRADED <from> <to>`: tell user "Running gstack v{to} (just updated!)" and continue.

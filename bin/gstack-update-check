@@ -4,6 +4,7 @@
 # Output (one line, or nothing):
 #   JUST_UPGRADED <old> <new>       — marker found from recent upgrade
 #   UPGRADE_AVAILABLE <old> <new>   — remote VERSION differs from local
+#   FORK_HAS_UPDATE <old> <new>     — fork already has the update, local is behind
 #   (nothing)                       — up to date, snoozed, disabled, or check skipped
 #
 # Env overrides (for testing):
@@ -140,37 +141,13 @@ fi
 # ─── Step 4: Slow path — fetch remote version ────────────────
 mkdir -p "$STATE_DIR"
 
-# Fire Supabase install ping in background (parallel, non-blocking)
-# This logs an update check event for community health metrics.
-# If the endpoint isn't configured or Supabase is down, this is a no-op.
-# Source Supabase config for install ping
-if [ -z "${GSTACK_TELEMETRY_ENDPOINT:-}" ] && [ -f "$GSTACK_DIR/supabase/config.sh" ]; then
-  . "$GSTACK_DIR/supabase/config.sh"
-fi
-_SUPA_ENDPOINT="${GSTACK_TELEMETRY_ENDPOINT:-}"
-_SUPA_KEY="${GSTACK_SUPABASE_ANON_KEY:-}"
-# Respect telemetry opt-out — don't ping Supabase if user set telemetry: off
-_TEL_TIER="$("$GSTACK_DIR/bin/gstack-config" get telemetry 2>/dev/null || true)"
-if [ -n "$_SUPA_ENDPOINT" ] && [ -n "$_SUPA_KEY" ] && [ "${_TEL_TIER:-off}" != "off" ]; then
-  _OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
-  curl -sf --max-time 5 \
-    -X POST "${_SUPA_ENDPOINT}/update_checks" \
-    -H "Content-Type: application/json" \
-    -H "apikey: ${_SUPA_KEY}" \
-    -H "Authorization: Bearer ${_SUPA_KEY}" \
-    -H "Prefer: return=minimal" \
-    -d "{\"gstack_version\":\"$LOCAL\",\"os\":\"$_OS\"}" \
-    >/dev/null 2>&1 &
-fi
-
-# GitHub raw fetch (primary, always reliable)
+# GitHub raw fetch — check upstream (garrytan/gstack)
 REMOTE=""
 REMOTE="$(curl -sf --max-time 5 "$REMOTE_URL" 2>/dev/null || true)"
 REMOTE="$(echo "$REMOTE" | tr -d '[:space:]')"
 
 # Validate: must look like a version number (reject HTML error pages)
 if ! echo "$REMOTE" | grep -qE '^[0-9]+\.[0-9.]+$'; then
-  # Invalid or empty response — assume up to date
   echo "UP_TO_DATE $LOCAL" > "$CACHE_FILE"
   exit 0
 fi
@@ -180,17 +157,33 @@ if [ "$LOCAL" = "$REMOTE" ]; then
   exit 0
 fi
 
-# Versions differ — upgrade available
+# Upstream has a newer version — check if our fork already has it
+_UPGRADE_MODE="$("$GSTACK_DIR/bin/gstack-config" get upgrade_mode 2>/dev/null || true)"
+if [ "$_UPGRADE_MODE" = "manual" ]; then
+  # Derive fork VERSION URL from installed copy's origin remote
+  FORK_URL="$(git -C "$GSTACK_DIR" remote get-url origin 2>/dev/null || true)"
+  FORK_VER=""
+  if [ -n "$FORK_URL" ]; then
+    # Convert git@github.com:user/repo.git or https://github.com/user/repo to raw URL
+    FORK_RAW="$(echo "$FORK_URL" | sed 's|git@github.com:|https://raw.githubusercontent.com/|;s|https://github.com/|https://raw.githubusercontent.com/|;s|\.git$||')/main/VERSION"
+    FORK_VER="$(curl -sf --max-time 5 "$FORK_RAW" 2>/dev/null | tr -d '[:space:]' || true)"
+  fi
+
+  if echo "$FORK_VER" | grep -qE '^[0-9]+\.[0-9.]+$' && [ "$FORK_VER" = "$REMOTE" ]; then
+    # Fork has the update — can auto-upgrade in place
+    echo "FORK_HAS_UPDATE $LOCAL $REMOTE" > "$CACHE_FILE"
+    if check_snooze "$REMOTE"; then
+      exit 0
+    fi
+    echo "FORK_HAS_UPDATE $LOCAL $REMOTE"
+    exit 0
+  fi
+fi
+
+# Fork doesn't have it (or not in manual mode) — standard upgrade available
 echo "UPGRADE_AVAILABLE $LOCAL $REMOTE" > "$CACHE_FILE"
 if check_snooze "$REMOTE"; then
   exit 0  # snoozed — stay quiet
-fi
-
-# Log upgrade_prompted event (only on slow-path fetch, not cached replays)
-TEL_CMD="$GSTACK_DIR/bin/gstack-telemetry-log"
-if [ -x "$TEL_CMD" ]; then
-  "$TEL_CMD" --event-type upgrade_prompted --skill "" --duration 0 \
-    --outcome success --session-id "update-$$-$(date +%s)" 2>/dev/null &
 fi
 
 echo "UPGRADE_AVAILABLE $LOCAL $REMOTE"
