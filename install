@@ -76,6 +76,14 @@ for skill_dir in "$DEST"/*/; do
   fi
 done
 
+# Set default config
+mkdir -p "$HOME/.gstack"
+CFG="$HOME/.gstack/config.yaml"
+for key_val in "upgrade_mode: manual" "telemetry: off"; do
+  key="${key_val%%:*}"
+  grep -q "^${key}:" "$CFG" 2>/dev/null || echo "$key_val" >> "$CFG"
+done
+
 echo "gstack installed on $(hostname) at $DEST"
 REMOTE_SCRIPT
   exit $?
@@ -125,5 +133,13 @@ done
 if [ ${#linked[@]} -gt 0 ]; then
   echo "  linked skills: ${linked[*]}"
 fi
+
+# Set default config
+mkdir -p "$HOME/.gstack"
+CFG="$HOME/.gstack/config.yaml"
+for key_val in "upgrade_mode: manual" "telemetry: off"; do
+  key="${key_val%%:*}"
+  grep -q "^${key}:" "$CFG" 2>/dev/null || echo "$key_val" >> "$CFG"
+done
 
 echo "gstack installed at $DEST"
