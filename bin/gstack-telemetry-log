@@ -66,10 +66,10 @@ case "$TIER" in
   *) TIER="off" ;;  # invalid value → default to off
 esac
 
+# When telemetry is off, still log locally — only skip the remote sync
+SYNC_ENABLED=1
 if [ "$TIER" = "off" ]; then
-  # Still clear pending markers for this session even if telemetry is off
-  [ -n "$SESSION_ID" ] && rm -f "$PENDING_DIR/.pending-$SESSION_ID" 2>/dev/null || true
-  exit 0
+  SYNC_ENABLED=0
 fi
 
 # ─── Finalize stale .pending markers ────────────────────────
@@ -184,10 +184,12 @@ printf '{"v":1,"ts":"%s","event_type":"%s","skill":"%s","session_id":"%s","gstac
   "$BROWSE_BOOL" "${SESSIONS:-1}" \
   "$INSTALL_FIELD" "$SOURCE" "$REPO_SLUG" "$BRANCH" >> "$JSONL_FILE" 2>/dev/null || true
 
-# ─── Trigger sync if tier is not off ─────────────────────────
-SYNC_CMD="$GSTACK_DIR/bin/gstack-telemetry-sync"
-if [ -x "$SYNC_CMD" ]; then
-  "$SYNC_CMD" 2>/dev/null &
+# ─── Trigger sync only if telemetry is enabled ───────────────
+if [ "$SYNC_ENABLED" -eq 1 ]; then
+  SYNC_CMD="$GSTACK_DIR/bin/gstack-telemetry-sync"
+  if [ -x "$SYNC_CMD" ]; then
+    "$SYNC_CMD" 2>/dev/null &
+  fi
 fi
 
 exit 0
