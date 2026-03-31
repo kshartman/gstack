@@ -116,6 +116,23 @@ for key_val in "upgrade_mode: manual" "telemetry: off"; do
   grep -q "^${key}:" "$CFG" 2>/dev/null || echo "$key_val" >> "$CFG"
 done
 
+# If browse can't launch, offer to install OS-level Chromium deps
+if [ "$(uname -s)" = "Linux" ]; then
+  BROWSE_BIN="$DEST/browse/dist/browse"
+  if [ -x "$BROWSE_BIN" ] && ! "$BROWSE_BIN" goto about:blank --snapshot text &>/dev/null; then
+    echo ""
+    echo "  Browser skills need OS-level Chromium dependencies."
+    if [ "$YES" -eq 1 ]; then
+      echo "  Installing via Playwright..."
+      sudo npx playwright install-deps chromium 2>&1 | tail -5
+    else
+      echo "  Run manually:"
+      echo "    sudo npx playwright install-deps chromium"
+      echo "  Note: text-based skills work fine without this."
+    fi
+  fi
+fi
+
 echo "gstack installed on $(hostname) at $DEST"
 REMOTE_SCRIPT
   REMOTE_VER=$(ssh -o ConnectTimeout=5 "$HOST" "cat \$HOME/.claude/skills/gstack/VERSION 2>/dev/null" || echo "unknown")
@@ -158,6 +175,28 @@ for key_val in "upgrade_mode: manual" "telemetry: off"; do
   key="${key_val%%:*}"
   grep -q "^${key}:" "$CFG" 2>/dev/null || echo "$key_val" >> "$CFG"
 done
+
+# If browse can't launch, offer to install OS-level Chromium deps
+if [ "$(uname -s)" = "Linux" ]; then
+  BROWSE_BIN="$DEST/browse/dist/browse"
+  if [ -x "$BROWSE_BIN" ] && ! "$BROWSE_BIN" goto about:blank --snapshot text &>/dev/null; then
+    echo ""
+    echo "  Browser skills need OS-level Chromium dependencies."
+    if [ "$YES" -eq 1 ]; then
+      echo "  Installing via Playwright..."
+      sudo npx playwright install-deps chromium 2>&1 | tail -5
+    else
+      read -rp "  Install Chromium OS deps via sudo? [y/N] " answer
+      if [[ "$answer" =~ ^[Yy]$ ]]; then
+        sudo npx playwright install-deps chromium 2>&1 | tail -5
+      else
+        echo "  Run manually when ready:"
+        echo "    sudo npx playwright install-deps chromium"
+        echo "  Note: text-based skills work fine without this."
+      fi
+    fi
+  fi
+fi
 
 LOCAL_VER=$(cat "$DEST/VERSION" 2>/dev/null || echo "unknown")
 log_install "$(hostname -s)" "$LOCAL_VER"
