@@ -13,6 +13,15 @@ REPO="git@github.com:kshartman/gstack.git"
 DEST="\$HOME/.claude/skills/gstack"
 HOST=""
 YES=0
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# ─── Install log ────────────────────────────────────────────
+log_install() {
+  local host="$1" version="$2"
+  local logfile="$SCRIPT_DIR/install.log"
+  local ts="$(date +%Y-%m-%d\ %H:%M:%S)"
+  echo "$ts  $host  v$version" >> "$logfile"
+}
 
 # Parse options
 while [[ $# -gt 0 ]]; do
@@ -225,6 +234,8 @@ fi
 
 echo "gstack installed on $(hostname) at $DEST"
 REMOTE_SCRIPT
+  REMOTE_VER=$(ssh -o ConnectTimeout=5 "$HOST" "cat \$HOME/.claude/skills/gstack/VERSION 2>/dev/null" || echo "unknown")
+  log_install "$HOST" "$REMOTE_VER"
   exit $?
 fi
 
@@ -286,4 +297,6 @@ done
 # Check Chromium deps for browser skills
 check_browser_deps "$DEST" "$YES"
 
+LOCAL_VER=$(cat "$DEST/VERSION" 2>/dev/null || echo "unknown")
+log_install "$(hostname -s)" "$LOCAL_VER"
 echo "gstack installed at $DEST"
