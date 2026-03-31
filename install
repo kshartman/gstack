@@ -106,7 +106,7 @@ cd "$DEST"
 git fetch origin
 git reset --hard origin/main
 bun install
-./setup --no-prefix
+./setup --no-prefix || true
 
 # Set default config
 mkdir -p "$HOME/.gstack"
@@ -166,7 +166,7 @@ cd "$DEST"
 git fetch origin
 git reset --hard origin/main
 bun install
-./setup --no-prefix
+./setup --no-prefix || true
 
 # Set default config
 mkdir -p "$HOME/.gstack"
