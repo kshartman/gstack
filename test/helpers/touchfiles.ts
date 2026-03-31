@@ -59,6 +59,15 @@ export const E2E_TOUCHFILES: Record<string, string[]> = {
   'review-base-branch':       ['review/**'],
   'review-design-lite':       ['review/**', 'test/fixtures/review-eval-design-slop.*'],
 
+  // Review Army (specialist dispatch)
+  'review-army-migration-safety': ['review/**', 'scripts/resolvers/review-army.ts', 'bin/gstack-diff-scope'],
+  'review-army-perf-n-plus-one':  ['review/**', 'scripts/resolvers/review-army.ts', 'bin/gstack-diff-scope'],
+  'review-army-delivery-audit':   ['review/**', 'scripts/resolvers/review.ts', 'scripts/resolvers/review-army.ts'],
+  'review-army-quality-score':    ['review/**', 'scripts/resolvers/review-army.ts'],
+  'review-army-json-findings':    ['review/**', 'scripts/resolvers/review-army.ts'],
+  'review-army-red-team':         ['review/**', 'scripts/resolvers/review-army.ts'],
+  'review-army-consensus':        ['review/**', 'scripts/resolvers/review-army.ts'],
+
   // Office Hours
   'office-hours-spec-review':  ['office-hours/**', 'scripts/gen-skill-docs.ts'],
 
@@ -79,6 +88,9 @@ export const E2E_TOUCHFILES: Record<string, string[]> = {
   // Ship
   'ship-base-branch': ['ship/**', 'bin/gstack-repo-mode'],
   'ship-local-workflow': ['ship/**', 'scripts/gen-skill-docs.ts'],
+  'review-dashboard-via': ['ship/**', 'scripts/resolvers/review.ts', 'codex/**', 'autoplan/**', 'land-and-deploy/**'],
+  'ship-plan-completion': ['ship/**', 'scripts/gen-skill-docs.ts'],
+  'ship-plan-verification': ['ship/**', 'scripts/gen-skill-docs.ts'],
 
   // Retro
   'retro':             ['retro/**'],
@@ -91,6 +103,9 @@ export const E2E_TOUCHFILES: Record<string, string[]> = {
   'cso-full-audit':   ['cso/**'],
   'cso-diff-mode':    ['cso/**'],
   'cso-infra-scope':  ['cso/**'],
+
+  // Learnings
+  'learnings-show': ['learn/**', 'bin/gstack-learnings-search', 'bin/gstack-learnings-log', 'scripts/resolvers/learnings.ts'],
 
   // Document-release
   'document-release': ['document-release/**'],
@@ -116,6 +131,7 @@ export const E2E_TOUCHFILES: Record<string, string[]> = {
   // Plan completion audit + verification
   'ship-plan-completion': ['ship/**', 'scripts/gen-skill-docs.ts'],
   'ship-plan-verification': ['ship/**', 'qa-only/**', 'scripts/gen-skill-docs.ts'],
+  'ship-idempotency':       ['ship/**', 'scripts/resolvers/utility.ts'],
   'review-plan-completion': ['review/**', 'scripts/gen-skill-docs.ts'],
 
   // Design
@@ -127,14 +143,26 @@ export const E2E_TOUCHFILES: Record<string, string[]> = {
   'plan-design-review-no-ui-scope': ['plan-design-review/**', 'scripts/gen-skill-docs.ts'],
   'design-review-fix':              ['design-review/**', 'browse/src/**', 'scripts/gen-skill-docs.ts'],
 
+  // Design Shotgun
+  'design-shotgun-path':            ['design-shotgun/**', 'design/src/**', 'scripts/resolvers/design.ts'],
+  'design-shotgun-session':         ['design-shotgun/**', 'scripts/resolvers/design.ts'],
+  'design-shotgun-full':            ['design-shotgun/**', 'design/src/**', 'browse/src/**'],
+
   // gstack-upgrade
   'gstack-upgrade-happy-path': ['gstack-upgrade/**'],
 
   // Deploy skills
-  'land-and-deploy-workflow':   ['land-and-deploy/**', 'scripts/gen-skill-docs.ts'],
-  'canary-workflow':            ['canary/**', 'browse/src/**'],
-  'benchmark-workflow':         ['benchmark/**', 'browse/src/**'],
-  'setup-deploy-workflow':      ['setup-deploy/**', 'scripts/gen-skill-docs.ts'],
+  'land-and-deploy-workflow':      ['land-and-deploy/**', 'scripts/gen-skill-docs.ts'],
+  'land-and-deploy-first-run':     ['land-and-deploy/**', 'scripts/gen-skill-docs.ts', 'bin/gstack-slug'],
+  'land-and-deploy-review-gate':   ['land-and-deploy/**', 'bin/gstack-review-read'],
+  'canary-workflow':               ['canary/**', 'browse/src/**'],
+  'benchmark-workflow':            ['benchmark/**', 'browse/src/**'],
+  'setup-deploy-workflow':         ['setup-deploy/**', 'scripts/gen-skill-docs.ts'],
+
+  // Sidebar agent
+  'sidebar-navigate':              ['browse/src/server.ts', 'browse/src/sidebar-agent.ts', 'browse/src/sidebar-utils.ts', 'extension/**'],
+  'sidebar-url-accuracy':          ['browse/src/server.ts', 'browse/src/sidebar-agent.ts', 'browse/src/sidebar-utils.ts', 'extension/background.js'],
+  'sidebar-css-interaction':       ['browse/src/server.ts', 'browse/src/sidebar-agent.ts', 'browse/src/write-commands.ts', 'browse/src/read-commands.ts', 'browse/src/cdp-inspector.ts', 'extension/**'],
 
   // Autoplan
   'autoplan-core':  ['autoplan/**', 'plan-ceo-review/**', 'plan-eng-review/**', 'plan-design-review/**'],
@@ -142,7 +170,6 @@ export const E2E_TOUCHFILES: Record<string, string[]> = {
   // Skill routing — journey-stage tests (depend on ALL skill descriptions)
   'journey-ideation':       ['*/SKILL.md.tmpl', 'SKILL.md.tmpl', 'scripts/gen-skill-docs.ts'],
   'journey-plan-eng':       ['*/SKILL.md.tmpl', 'SKILL.md.tmpl', 'scripts/gen-skill-docs.ts'],
-  'journey-think-bigger':   ['*/SKILL.md.tmpl', 'SKILL.md.tmpl', 'scripts/gen-skill-docs.ts'],
   'journey-debug':          ['*/SKILL.md.tmpl', 'SKILL.md.tmpl', 'scripts/gen-skill-docs.ts'],
   'journey-qa':             ['*/SKILL.md.tmpl', 'SKILL.md.tmpl', 'scripts/gen-skill-docs.ts'],
   'journey-code-review':    ['*/SKILL.md.tmpl', 'SKILL.md.tmpl', 'scripts/gen-skill-docs.ts'],
@@ -184,6 +211,17 @@ export const E2E_TIERS: Record<string, 'gate' | 'periodic'> = {
   'review-base-branch': 'gate',
   'review-design-lite': 'periodic',   // 4/7 threshold is subjective
   'review-coverage-audit': 'gate',
+  'review-plan-completion': 'gate',
+  'review-dashboard-via': 'gate',
+
+  // Review Army — gate for core functionality, periodic for multi-specialist
+  'review-army-migration-safety': 'gate',   // Specialist activation guardrail
+  'review-army-perf-n-plus-one': 'gate',    // Specialist activation guardrail
+  'review-army-delivery-audit': 'gate',     // Delivery integrity guardrail
+  'review-army-quality-score': 'gate',      // Score computation
+  'review-army-json-findings': 'gate',      // JSON schema compliance
+  'review-army-red-team': 'periodic',       // Multi-agent coordination
+  'review-army-consensus': 'periodic',      // Multi-specialist agreement
 
   // Office Hours
   'office-hours-spec-review': 'gate',
@@ -208,6 +246,9 @@ export const E2E_TIERS: Record<string, 'gate' | 'periodic'> = {
   'ship-local-workflow': 'gate',
   'ship-coverage-audit': 'gate',
   'ship-triage': 'gate',
+  'ship-plan-completion': 'gate',
+  'ship-plan-verification': 'gate',
+  'ship-idempotency': 'periodic',
 
   // Retro — gate for cheap branch detection, periodic for full Opus retro
   'retro': 'periodic',
@@ -220,6 +261,9 @@ export const E2E_TIERS: Record<string, 'gate' | 'periodic'> = {
   'cso-full-audit': 'gate',      // Hardcoded secrets detection
   'cso-diff-mode': 'gate',
   'cso-infra-scope': 'periodic',
+
+  // Learnings — gate (functional guardrail: seeded learnings must appear)
+  'learnings-show': 'gate',
 
   // Document-release — gate (CHANGELOG guardrail)
   'document-release': 'gate',
@@ -241,15 +285,25 @@ export const E2E_TIERS: Record<string, 'gate' | 'periodic'> = {
   'plan-design-review-plan-mode': 'periodic',
   'plan-design-review-no-ui-scope': 'gate',
   'design-review-fix': 'periodic',
+  'design-shotgun-path': 'gate',
+  'design-shotgun-session': 'gate',
+  'design-shotgun-full': 'periodic',
 
   // gstack-upgrade
   'gstack-upgrade-happy-path': 'gate',
 
   // Deploy skills
   'land-and-deploy-workflow': 'gate',
+  'land-and-deploy-first-run': 'gate',
+  'land-and-deploy-review-gate': 'gate',
   'canary-workflow': 'gate',
   'benchmark-workflow': 'gate',
   'setup-deploy-workflow': 'gate',
+
+  // Sidebar agent
+  'sidebar-navigate': 'periodic',
+  'sidebar-url-accuracy': 'periodic',
+  'sidebar-css-interaction': 'periodic',
 
   // Autoplan — periodic (not yet implemented)
   'autoplan-core': 'periodic',
@@ -257,7 +311,6 @@ export const E2E_TIERS: Record<string, 'gate' | 'periodic'> = {
   // Skill routing — periodic (LLM routing is non-deterministic)
   'journey-ideation': 'periodic',
   'journey-plan-eng': 'periodic',
-  'journey-think-bigger': 'periodic',
   'journey-debug': 'periodic',
   'journey-qa': 'periodic',
   'journey-code-review': 'periodic',
@@ -310,6 +363,9 @@ export const LLM_JUDGE_TOUCHFILES: Record<string, string[]> = {
   'retro/SKILL.md instructions':          ['retro/SKILL.md', 'retro/SKILL.md.tmpl'],
   'qa-only/SKILL.md workflow':            ['qa-only/SKILL.md', 'qa-only/SKILL.md.tmpl'],
   'gstack-upgrade/SKILL.md upgrade flow': ['gstack-upgrade/SKILL.md', 'gstack-upgrade/SKILL.md.tmpl'],
+
+  // Voice directive
+  'voice directive tone':                 ['scripts/resolvers/preamble.ts', 'review/SKILL.md', 'review/SKILL.md.tmpl', 'scripts/gen-skill-docs.ts'],
 };
 
 /**
