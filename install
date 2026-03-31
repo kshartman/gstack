@@ -55,15 +55,19 @@ ensure_bun_path() {
   fi
 }
 
-# ─── Chromium deps check ────────────────────────────────────
-check_browser_deps() {
+# ─── Chromium setup ─────────────────────────────────────────
+setup_browser() {
   local dest="$1"
   local yes="$2"
 
-  # Only relevant on Linux
+  # Install Playwright Chromium browser binary (user-level, no sudo)
+  echo "  Installing Playwright Chromium browser..."
+  npx playwright install chromium 2>&1 | tail -3
+
+  # Only Linux needs OS-level deps
   [ "$(uname -s)" = "Linux" ] || return 0
 
-  # Try launching Chromium headless — if it works, nothing to do
+  # Try launching — if it works, deps are already there
   local browse_bin="$dest/browse/dist/browse"
   if [ -x "$browse_bin" ]; then
     if "$browse_bin" goto about:blank --snapshot text &>/dev/null; then
@@ -71,28 +75,19 @@ check_browser_deps() {
     fi
   fi
 
-  # Detect OS and required packages
-  local os_id=""
-  [ -f /etc/os-release ] && os_id="$(. /etc/os-release && echo "$ID")"
-
-  local apt_pkgs="libnss3 libatk-bridge2.0-0t64 libdrm2 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libasound2t64 libpango-1.0-0 libcairo2 libcups2t64 libxkbcommon0 libatspi2.0-0t64"
-  local dnf_pkgs="nss atk at-spi2-atk libdrm libXcomposite libXdamage libXrandr mesa-libgbm alsa-lib pango cairo cups-libs libxkbcommon at-spi2-core"
-
-  echo ""
-  echo "  Browser skills (/browse, /qa, /design-review) need Chromium dependencies."
+  echo "  Installing Chromium OS dependencies..."
   if [ "$yes" -eq 1 ]; then
-    echo "  Installing Chromium deps via Playwright..."
     sudo npx playwright install-deps chromium 2>&1 | tail -5
   else
-    read -rp "  Install Chromium deps via sudo? [y/N] " answer
+    read -rp "  Install Chromium OS deps via sudo? [y/N] " answer
     if [[ "$answer" =~ ^[Yy]$ ]]; then
       sudo npx playwright install-deps chromium 2>&1 | tail -5
     else
       echo "  Run manually when ready:"
       echo "    sudo npx playwright install-deps chromium"
+      echo "  Note: text-based skills work fine without this."
     fi
   fi
-  echo "  Note: text-based skills work fine without this."
 }
 
 # ─── Remote install via SSH ──────────────────────────────────
@@ -168,7 +163,10 @@ for key_val in "upgrade_mode: manual" "telemetry: off"; do
   grep -q "^${key}:" "$CFG" 2>/dev/null || echo "$key_val" >> "$CFG"
 done
 
-# Check Chromium deps for browser skills
+# Install Playwright Chromium browser + OS deps
+echo "  Installing Playwright Chromium browser..."
+npx playwright install chromium 2>&1 | tail -3
+
 if [ "$(uname -s)" = "Linux" ]; then
   BROWSE_OK=0
   BROWSE_BIN="$DEST/browse/dist/browse"
@@ -176,16 +174,14 @@ if [ "$(uname -s)" = "Linux" ]; then
     BROWSE_OK=1
   fi
   if [ "$BROWSE_OK" -eq 0 ]; then
-    echo ""
-    echo "  Browser skills (/browse, /qa, /design-review) need Chromium dependencies."
+    echo "  Installing Chromium OS dependencies..."
     if [ "$YES" -eq 1 ]; then
-      echo "  Installing Chromium deps via Playwright..."
       sudo npx playwright install-deps chromium 2>&1 | tail -5
     else
       echo "  Run manually:"
       echo "    sudo npx playwright install-deps chromium"
+      echo "  Note: text-based skills work fine without this."
     fi
-    echo "  Note: text-based skills work fine without this."
   fi
 fi
 
@@ -252,7 +248,7 @@ for key_val in "upgrade_mode: manual" "telemetry: off"; do
 done
 
 # Check Chromium deps for browser skills
-check_browser_deps "$DEST" "$YES"
+setup_browser "$DEST" "$YES"
 
 LOCAL_VER=$(cat "$DEST/VERSION" 2>/dev/null || echo "unknown")
 log_install "$(hostname -s)" "$LOCAL_VER"
