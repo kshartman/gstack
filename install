@@ -51,6 +51,9 @@ check_browser_deps() {
   local dest="$1"
   local yes="$2"
 
+  # Only relevant on Linux
+  [ "$(uname -s)" = "Linux" ] || return 0
+
   # Try launching Chromium headless — if it works, nothing to do
   local browse_bin="$dest/browse/dist/browse"
   if [ -x "$browse_bin" ]; then
@@ -66,10 +69,10 @@ check_browser_deps() {
   local apt_pkgs="libnss3 libatk-bridge2.0-0t64 libdrm2 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libasound2t64 libpango-1.0-0 libcairo2 libcups2t64 libxkbcommon0 libatspi2.0-0t64"
   local dnf_pkgs="nss atk at-spi2-atk libdrm libXcomposite libXdamage libXrandr mesa-libgbm alsa-lib pango cairo cups-libs libxkbcommon at-spi2-core"
 
+  echo ""
+  echo "  Browser skills (/browse, /qa, /design-review) need Chromium dependencies."
   case "$os_id" in
     ubuntu|debian|pop|linuxmint)
-      echo ""
-      echo "  Browser skills (/browse, /qa, /design-review) need Chromium dependencies."
       if [ "$yes" -eq 1 ]; then
         echo "  Installing Chromium deps..."
         sudo apt-get install -y $apt_pkgs 2>&1 | tail -3
@@ -78,17 +81,12 @@ check_browser_deps() {
         if [[ "$answer" =~ ^[Yy]$ ]]; then
           sudo apt-get install -y $apt_pkgs 2>&1 | tail -3
         else
-          echo ""
           echo "  Run manually when ready:"
           echo "    sudo apt install -y $apt_pkgs"
-          echo ""
-          echo "  Note: text-based skills work fine without this."
         fi
       fi
       ;;
     fedora|rhel|centos|rocky|alma)
-      echo ""
-      echo "  Browser skills (/browse, /qa, /design-review) need Chromium dependencies."
       if [ "$yes" -eq 1 ]; then
         echo "  Installing Chromium deps..."
         sudo dnf install -y $dnf_pkgs 2>&1 | tail -3
@@ -97,24 +95,17 @@ check_browser_deps() {
         if [[ "$answer" =~ ^[Yy]$ ]]; then
           sudo dnf install -y $dnf_pkgs 2>&1 | tail -3
         else
-          echo ""
           echo "  Run manually when ready:"
           echo "    sudo dnf install -y $dnf_pkgs"
-          echo ""
-          echo "  Note: text-based skills work fine without this."
         fi
       fi
       ;;
     *)
-      # macOS or unknown — Chromium deps are bundled on macOS, skip
-      if [ "$(uname -s)" != "Darwin" ]; then
-        echo ""
-        echo "  Warning: Chromium could not launch. Browser skills won't work."
-        echo "  Install Playwright Chromium deps for your OS:"
-        echo "    npx playwright install-deps chromium"
-      fi
+      echo "  Install Playwright Chromium deps for your OS:"
+      echo "    npx playwright install-deps chromium"
       ;;
   esac
+  echo "  Note: text-based skills work fine without this."
 }
 
 # ─── Remote install via SSH ──────────────────────────────────

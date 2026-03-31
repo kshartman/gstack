@@ -169,12 +169,24 @@ export class BrowserManager {
       console.log(`[browse] Extensions loaded from: ${extensionsDir}`);
     }
 
+    // Determine if Chromium sandbox should be disabled:
+    // - Windows: Bun→Node process chain breaks sandbox (GitHub #276)
+    // - Linux: Ubuntu 24.04+ AppArmor restricts unprivileged user namespaces
+    // - macOS: sandbox works natively via seatbelt, always enabled
+    let useSandbox = process.platform === 'darwin';
+    if (process.platform === 'linux') {
+      try {
+        const _fs = require('fs');
+        const val = _fs.readFileSync('/proc/sys/kernel/apparmor_restrict_unprivileged_userns', 'utf8').trim();
+        useSandbox = val !== '1';
+      } catch {
+        useSandbox = true; // no AppArmor restriction, sandbox is fine
+      }
+    }
+
     this.browser = await chromium.launch({
       headless: useHeadless,
-      // On Windows, Chromium's sandbox fails when the server is spawned through
-      // the Bun→Node process chain (GitHub #276). Disable it — local daemon
-      // browsing user-specified URLs has marginal sandbox benefit.
-      chromiumSandbox: process.platform !== 'win32',
+      chromiumSandbox: useSandbox,
       ...(launchArgs.length > 0 ? { args: launchArgs } : {}),
     });
 
