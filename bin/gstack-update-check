@@ -187,18 +187,25 @@ if [ "$_UPGRADE_MODE" = "manual" ]; then
     FORK_VER="$(curl -sf --max-time 5 "$FORK_RAW" 2>/dev/null | tr -d '[:space:]' || true)"
   fi
 
-  if echo "$FORK_VER" | grep -qE '^[0-9]+\.[0-9.]+$' && [ "$FORK_VER" = "$REMOTE" ]; then
-    # Fork has the update — can auto-upgrade in place
-    echo "FORK_HAS_UPDATE $LOCAL $REMOTE" > "$CACHE_FILE"
-    if check_snooze "$REMOTE"; then
+  if echo "$FORK_VER" | grep -qE '^[0-9]+\.[0-9.]+$'; then
+    if [ "$FORK_VER" = "$REMOTE" ] || [ "$FORK_VER" != "$LOCAL" ]; then
+      # Fork has the upstream update, or fork is ahead of local — upgrade from fork
+      echo "FORK_HAS_UPDATE $LOCAL ${FORK_VER}" > "$CACHE_FILE"
+      if check_snooze "$FORK_VER"; then
+        exit 0
+      fi
+      echo "FORK_HAS_UPDATE $LOCAL ${FORK_VER}"
+      exit 0
+    else
+      # Fork matches local — we're current with our fork, upstream just moved ahead
+      # Don't nag: user can't act until they merge upstream into the fork
+      echo "UP_TO_DATE $LOCAL" > "$CACHE_FILE"
       exit 0
     fi
-    echo "FORK_HAS_UPDATE $LOCAL $REMOTE"
-    exit 0
   fi
 fi
 
-# Fork doesn't have it (or not in manual mode) — standard upgrade available
+# Fork URL not available or not in manual mode — standard upgrade available
 echo "UPGRADE_AVAILABLE $LOCAL $REMOTE" > "$CACHE_FILE"
 if check_snooze "$REMOTE"; then
   exit 0  # snoozed — stay quiet
