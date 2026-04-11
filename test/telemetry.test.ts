@@ -58,18 +58,18 @@ describe('gstack-telemetry-log', () => {
     expect(events[0].gstack_version).toBeTruthy();
   });
 
-  test('produces no output when tier=off', () => {
+  test('still writes locally when tier=off (sync is blocked, local write is not)', () => {
     setConfig('telemetry', 'off');
     run(`${BIN}/gstack-telemetry-log --skill ship --duration 30 --outcome success --session-id test-456`);
 
-    expect(readJsonl()).toHaveLength(0);
+    expect(readJsonl()).toHaveLength(1);
   });
 
-  test('defaults to off for invalid tier value', () => {
+  test('defaults to off for invalid tier value (still writes locally)', () => {
     setConfig('telemetry', 'invalid_value');
     run(`${BIN}/gstack-telemetry-log --skill ship --duration 30 --outcome success --session-id test-789`);
 
-    expect(readJsonl()).toHaveLength(0);
+    expect(readJsonl()).toHaveLength(1);
   });
 
   test('includes installation_id for community tier', () => {
@@ -311,8 +311,8 @@ describe('.pending marker', () => {
     run(`${BIN}/gstack-telemetry-log --skill qa --duration 50 --outcome success --session-id off-123`);
 
     expect(fs.existsSync(pendingPath)).toBe(false);
-    // But no JSONL entries since tier=off
-    expect(readJsonl()).toHaveLength(0);
+    // Local JSONL write still happens even when tier=off (sync is what's blocked)
+    expect(readJsonl()).toHaveLength(1);
   });
 });
 
