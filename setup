@@ -838,3 +838,10 @@ if [ "$NO_TEAM_MODE" -eq 1 ]; then
 
   log "Team mode disabled: auto-update hook removed."
 fi
+
+# ─── Fork defaults (kshartman/gstack) ───────────────────────
+# Ensure fork-specific config defaults are set after every setup run.
+# upgrade_mode=manual: don't auto-upgrade from upstream; go through fork.
+# telemetry=off: local analytics only, no Supabase sync.
+"$GSTACK_CONFIG" get upgrade_mode 2>/dev/null | grep -q . || "$GSTACK_CONFIG" set upgrade_mode manual 2>/dev/null || true
+"$GSTACK_CONFIG" get telemetry 2>/dev/null | grep -q . || "$GSTACK_CONFIG" set telemetry off 2>/dev/null || true
