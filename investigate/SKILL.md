@@ -122,21 +122,15 @@ or invoking other gstack skills, use the `/gstack-` prefix (e.g., `/gstack-qa` i
 of `/qa`, `/gstack-ship` instead of `/ship`). Disk paths are unaffected — always use
 `~/.claude/skills/gstack/[skill-name]/SKILL.md` for reading skill files.
 
-If output shows `FORK_HAS_UPDATE <old> <new>`: the user's fork already has v{new}. Ask: "gstack **v{new}** is available in your fork (you're on v{old}). Upgrade now?" If they say yes, run:
+If output shows `FORK_HAS_UPDATE <old> <new>`: Ask the user "gstack v{new} is available in your fork. Upgrade now?" using AskUserQuestion. If yes, run:
 ```bash
-cd ~/.claude/skills/gstack
-git fetch origin
-git reset --hard origin/main
-bun install
-bun run build
-echo "{old}" > ~/.gstack/just-upgraded-from
-rm -f ~/.gstack/last-update-check
+cd ~/.claude/skills/gstack && git fetch origin && git reset --hard origin/main && bun install && bun run build
 ```
-Then tell user "gstack upgraded to v{new}!" and continue with the original skill. If they say no, continue without upgrading.
+If no, continue without upgrading.
 
-If output shows `UPGRADE_AVAILABLE <old> <new>`:
-- If `UPGRADE_MODE` is `manual`: tell the user "gstack **v{new}** is available upstream (you're on v{old}). Merge upstream into your fork, then run `./release`." Do NOT offer to auto-upgrade or read the upgrade skill.
-- Otherwise: read `~/.claude/skills/gstack/gstack-upgrade/SKILL.md` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise AskUserQuestion with 4 options, write snooze state if declined).
+If output shows `UPGRADE_AVAILABLE <old> <new>` and upgrade_mode is manual: tell the user "gstack v{new} is available upstream. Merge into your fork, then run ./install -y to update." Do NOT auto-upgrade.
+
+If output shows `UPGRADE_AVAILABLE <old> <new>` and upgrade_mode is NOT manual: read `~/.claude/skills/gstack/gstack-upgrade/SKILL.md` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise AskUserQuestion with 4 options, write snooze state if declined).
 
 If `JUST_UPGRADED <from> <to>`: tell user "Running gstack v{to} (just updated!)" and continue.
 
@@ -152,9 +146,9 @@ touch ~/.gstack/.completeness-intro-seen
 
 Only run `open` if the user says yes. Always run `touch` to mark as seen. This only happens once.
 
-If `TELEMETRY` is `off`, skip the telemetry prompt entirely — the user has already opted out.
+If TELEMETRY output is `off`, skip this section entirely — the user has already configured telemetry.
 
-Otherwise, if `TEL_PROMPTED` is `no` AND `LAKE_INTRO` is `yes`: After the lake intro is handled,
+If `TEL_PROMPTED` is `no` AND `LAKE_INTRO` is `yes` AND TELEMETRY is not `off`: After the lake intro is handled,
 ask the user about telemetry. Use AskUserQuestion:
 
 > Help gstack get better! Community mode shares usage data (which skills you use, how long
@@ -455,7 +449,7 @@ A good test: would knowing this save 5+ minutes in a future session? If yes, log
 
 ## Telemetry (run last)
 
-After the skill workflow completes (success, error, or abort), log the telemetry event locally.
+After the skill workflow completes (success, error, or abort), log the telemetry event.
 Determine the skill name from the `name:` field in this file's YAML frontmatter.
 Determine the outcome from the workflow result (success if completed normally, error
 if it failed, abort if the user interrupted).
