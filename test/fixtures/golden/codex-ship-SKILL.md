@@ -117,7 +117,15 @@ or invoking other gstack skills, use the `/gstack-` prefix (e.g., `/gstack-qa` i
 of `/qa`, `/gstack-ship` instead of `/ship`). Disk paths are unaffected — always use
 `$GSTACK_ROOT/[skill-name]/SKILL.md` for reading skill files.
 
-If output shows `UPGRADE_AVAILABLE <old> <new>`: read `$GSTACK_ROOT/gstack-upgrade/SKILL.md` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise AskUserQuestion with 4 options, write snooze state if declined).
+If output shows `FORK_HAS_UPDATE <old> <new>`: Ask the user "gstack v{new} is available in your fork. Upgrade now?" using AskUserQuestion. If yes, run:
+```bash
+cd $GSTACK_ROOT && git fetch origin && git reset --hard origin/main && bun install && bun run build
+```
+If no, continue without upgrading.
+
+If output shows `UPGRADE_AVAILABLE <old> <new>` and upgrade_mode is manual: tell the user "gstack v{new} is available upstream. Merge into your fork, then run ./install -y to update." Do NOT auto-upgrade.
+
+If output shows `UPGRADE_AVAILABLE <old> <new>` and upgrade_mode is NOT manual: read `$GSTACK_ROOT/gstack-upgrade/SKILL.md` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise AskUserQuestion with 4 options, write snooze state if declined).
 
 If output shows `JUST_UPGRADED <from> <to>` AND `SPAWNED_SESSION` is NOT set: tell
 the user "Running gstack v{to} (just updated!)" and then check for new features to
