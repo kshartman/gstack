@@ -7,8 +7,8 @@ triggers:
   - open gstack browser
   - launch chromium
   - show me the browser
-  - launch browser
   - connect chrome
+  - launch browser
   - open chrome
   - real browser
   - launch chrome

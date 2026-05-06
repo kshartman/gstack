@@ -377,8 +377,9 @@ link_claude_skill_dirs() {
   for skill_dir in "$gstack_dir"/*/; do
     if [ -f "$skill_dir/SKILL.md" ]; then
       dir_name="$(basename "$skill_dir")"
-      # Skip node_modules
+      # Skip non-skill directories
       [ "$dir_name" = "node_modules" ] && continue
+      [ "$dir_name" = "browse" ] && continue
       # Use frontmatter name: if present (e.g., run-tests/ with name: test → symlink as "test")
       skill_name=$(grep -m1 '^name:' "$skill_dir/SKILL.md" 2>/dev/null | sed 's/^name:[[:space:]]*//' | tr -d '[:space:]')
       [ -z "$skill_name" ] && skill_name="$dir_name"
@@ -790,14 +791,11 @@ if [ "$INSTALL_CLAUDE" -eq 1 ]; then
     if [ -x "$GSTACK_RELINK" ]; then
       GSTACK_SKILLS_DIR="$INSTALL_SKILLS_DIR" GSTACK_INSTALL_DIR="$SOURCE_GSTACK_DIR" "$GSTACK_RELINK" >/dev/null 2>&1 || true
     fi
-    # Backwards-compat alias: /connect-chrome → /open-gstack-browser
-    _OGB_LINK="$INSTALL_SKILLS_DIR/connect-chrome"
-    if [ "$SKILL_PREFIX" -eq 1 ]; then
-      _OGB_LINK="$INSTALL_SKILLS_DIR/gstack-connect-chrome"
-    fi
-    if [ -L "$_OGB_LINK" ] || [ ! -e "$_OGB_LINK" ]; then
-      ln -snf "gstack/open-gstack-browser" "$_OGB_LINK"
-    fi
+    # Clean up stale connect-chrome alias (removed to save skill budget)
+    for _OGB in "$INSTALL_SKILLS_DIR/connect-chrome" "$INSTALL_SKILLS_DIR/gstack-connect-chrome"; do
+      [ -L "$_OGB" ] && rm -f "$_OGB"
+      [ -d "$_OGB" ] && rm -rf "$_OGB"
+    done
     if [ "$LOCAL_INSTALL" -eq 1 ]; then
       log "gstack ready (project-local)."
       log "  skills: $INSTALL_SKILLS_DIR"
@@ -826,13 +824,10 @@ if [ "$INSTALL_CLAUDE" -eq 1 ]; then
     if [ -x "$GSTACK_RELINK" ]; then
       GSTACK_SKILLS_DIR="$INSTALL_SKILLS_DIR" GSTACK_INSTALL_DIR="$SOURCE_GSTACK_DIR" "$GSTACK_RELINK" >/dev/null 2>&1 || true
     fi
-    _OGB_LINK="$INSTALL_SKILLS_DIR/connect-chrome"
-    if [ "$SKILL_PREFIX" -eq 1 ]; then
-      _OGB_LINK="$INSTALL_SKILLS_DIR/gstack-connect-chrome"
-    fi
-    if [ -L "$_OGB_LINK" ] || [ ! -e "$_OGB_LINK" ]; then
-      ln -snf "gstack/open-gstack-browser" "$_OGB_LINK"
-    fi
+    for _OGB in "$INSTALL_SKILLS_DIR/connect-chrome" "$INSTALL_SKILLS_DIR/gstack-connect-chrome"; do
+      [ -L "$_OGB" ] && rm -f "$_OGB"
+      [ -d "$_OGB" ] && rm -rf "$_OGB"
+    done
     log "gstack ready (claude)."
     log "  browse: $BROWSE_BIN"
   fi
