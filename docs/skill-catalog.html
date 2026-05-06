@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gstack Skill Catalog — v1.26.4.0</title>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --text-muted: #8b949e; --accent: #58a6ff;
+    --green: #3fb950; --orange: #d29922; --purple: #bc8cff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+    max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem;
+  }
+  h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+  h2 { font-size: 1.5rem; margin: 2.5rem 0 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+  h3 { font-size: 1.1rem; color: var(--accent); }
+  .subtitle { color: var(--text-muted); margin-bottom: 2rem; }
+  .stats { display: flex; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; }
+  .stat-num { font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+  .stat-label { color: var(--text-muted); font-size: 0.85rem; }
+
+  /* Cheat sheet table */
+  table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+  th { text-align: left; padding: 0.6rem 0.8rem; border-bottom: 2px solid var(--border); color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  td { padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+  tr:hover { background: var(--surface); }
+  td a { color: var(--accent); text-decoration: none; }
+  td a:hover { text-decoration: underline; }
+  td code { background: var(--surface); padding: 0.15rem 0.4rem; border-radius: 3px; font-size: 0.8rem; }
+
+  /* Skill cards */
+  .skill-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; }
+  .skill-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
+  .skill-meta { display: flex; gap: 0.5rem; }
+  .skill-meta span { font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; }
+  .version { background: #1f6feb33; color: var(--accent); }
+  .tier { background: #3fb95033; color: var(--green); }
+  .interactive { background: #d2992233; color: var(--orange); }
+  .description { color: var(--text-muted); margin-bottom: 0.75rem; font-size: 0.9rem; }
+  .section { margin-top: 0.5rem; font-size: 0.85rem; }
+  .section strong { color: var(--text); }
+  .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 3px; margin: 0.15rem 0.1rem; font-size: 0.78rem; }
+  .badge.trigger { background: #1f6feb22; color: var(--accent); border: 1px solid #1f6feb44; }
+  .badge.voice { background: #bc8cff22; color: var(--purple); border: 1px solid #bc8cff44; }
+  .badge.tool { background: #30363d; color: var(--text-muted); }
+
+  /* Search */
+  .search-box { width: 100%; padding: 0.6rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 1rem; margin-bottom: 1.5rem; outline: none; }
+  .search-box:focus { border-color: var(--accent); }
+  .search-box::placeholder { color: var(--text-muted); }
+
+  @media (max-width: 600px) {
+    body { padding: 1rem; }
+    .stats { flex-direction: column; gap: 0.75rem; }
+    .skill-header { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<h1>gstack Skill Catalog</h1>
+<p class="subtitle">v1.26.4.0 — Generated 2026-05-06 — Full upstream descriptions by <a href="https://github.com/garrytan/gstack" style="color:var(--accent)">Garry Tan</a></p>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num">46</div><div class="stat-label">Skills</div></div>
+  <div class="stat"><div class="stat-num">161</div><div class="stat-label">Triggers</div></div>
+  <div class="stat"><div class="stat-num">4</div><div class="stat-label">Interactive</div></div>
+  <div class="stat"><div class="stat-num">15</div><div class="stat-label">Voice-enabled</div></div>
+</div>
+
+<input type="text" class="search-box" placeholder="Search skills, triggers, descriptions..." id="search">
+
+<h2>Quick Reference</h2>
+<table id="cheat-table">
+<thead><tr><th>Skill</th><th>Summary</th><th>Top Triggers</th><th>Interactive</th></tr></thead>
+<tbody>
+<tr>
+      <td><a href="#skill-autoplan">autoplan</a></td>
+      <td>Auto-review pipeline — reads the full CEO, design, eng, and DX review skills from disk and runs them sequentially with auto-decisions using 6 decision principles.</td>
+      <td><code>run all reviews</code>, <code>automatic review pipeline</code>, <code>auto plan review</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-benchmark">benchmark</a></td>
+      <td>Performance regression detection using the browse daemon.</td>
+      <td><code>performance benchmark</code>, <code>check page speed</code>, <code>detect performance regression</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-benchmark-models">benchmark-models</a></td>
+      <td>Cross-model benchmark for gstack skills.</td>
+      <td><code>cross model benchmark</code>, <code>compare claude gpt gemini</code>, <code>benchmark skill across models</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-browse">browse</a></td>
+      <td>Fast headless browser for QA testing and site dogfooding.</td>
+      <td><code>browse a page</code>, <code>headless browser</code>, <code>take page screenshot</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-canary">canary</a></td>
+      <td>Post-deploy canary monitoring.</td>
+      <td><code>monitor after deploy</code>, <code>canary check</code>, <code>watch for errors post-deploy</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-careful">careful</a></td>
+      <td>Safety guardrails for destructive commands.</td>
+      <td><code>be careful</code>, <code>warn before destructive</code>, <code>safety mode</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-claude">claude</a></td>
+      <td>Claude Code CLI wrapper for non-Claude hosts - three modes.</td>
+      <td><code>claude review</code>, <code>claude challenge</code>, <code>ask claude</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-codex">codex</a></td>
+      <td>OpenAI Codex CLI wrapper — three modes.</td>
+      <td><code>codex review</code>, <code>second opinion</code>, <code>outside voice challenge</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-context-restore">context-restore</a></td>
+      <td>Restore working context saved earlier by /context-save.</td>
+      <td><code>resume where i left off</code>, <code>restore context</code>, <code>where was i</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-context-save">context-save</a></td>
+      <td>Save working context.</td>
+      <td><code>save progress</code>, <code>save state</code>, <code>save my work</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-cso">cso</a></td>
+      <td>Chief Security Officer mode.</td>
+      <td><code>security audit</code>, <code>check for vulnerabilities</code>, <code>owasp review</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-design-consultation">design-consultation</a></td>
+      <td>Design consultation: understands your product, researches the landscape, proposes a complete design system (aesthetic, typography, color, layout, spacing, motion), and generates font+color preview pages.</td>
+      <td><code>design system</code>, <code>create a brand</code>, <code>design from scratch</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-design-html">design-html</a></td>
+      <td>Design finalization: generates production-quality Pretext-native HTML/CSS.</td>
+      <td><code>build the design</code>, <code>code the mockup</code>, <code>make design real</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-design-review">design-review</a></td>
+      <td>Designer's eye QA: finds visual inconsistency, spacing issues, hierarchy problems, AI slop patterns, and slow interactions — then fixes them.</td>
+      <td><code>visual design audit</code>, <code>design qa</code>, <code>fix design issues</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-design-shotgun">design-shotgun</a></td>
+      <td>Design shotgun: generate multiple AI design variants, open a comparison board, collect structured feedback, and iterate.</td>
+      <td><code>explore design variants</code>, <code>show me design options</code>, <code>visual design brainstorm</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-devex-review">devex-review</a></td>
+      <td>Live developer experience audit.</td>
+      <td><code>live dx audit</code>, <code>test developer experience</code>, <code>measure onboarding time</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-document-release">document-release</a></td>
+      <td>Post-ship documentation update.</td>
+      <td><code>update docs after ship</code>, <code>document what changed</code>, <code>post-ship docs</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-freeze">freeze</a></td>
+      <td>Restrict file edits to a specific directory for the session.</td>
+      <td><code>freeze edits to directory</code>, <code>lock editing scope</code>, <code>restrict file changes</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-gstack-upgrade">gstack-upgrade</a></td>
+      <td>Upgrade gstack to the latest version.</td>
+      <td><code>upgrade gstack</code>, <code>update gstack version</code>, <code>get latest gstack</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-guard">guard</a></td>
+      <td>Full safety mode: destructive command warnings + directory-scoped edits.</td>
+      <td><code>full safety mode</code>, <code>guard against mistakes</code>, <code>maximum safety</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-health">health</a></td>
+      <td>Code quality dashboard.</td>
+      <td><code>code health check</code>, <code>quality dashboard</code>, <code>how healthy is codebase</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-investigate">investigate</a></td>
+      <td>Systematic debugging with root cause investigation.</td>
+      <td><code>debug this</code>, <code>fix this bug</code>, <code>why is this broken</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-land-and-deploy">land-and-deploy</a></td>
+      <td>Land and deploy workflow.</td>
+      <td><code>merge and deploy</code>, <code>land the pr</code>, <code>ship to production</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-landing-report">landing-report</a></td>
+      <td>Read-only queue dashboard for workspace-aware ship.</td>
+      <td><code>landing report</code>, <code>version queue</code>, <code>ship queue</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-learn">learn</a></td>
+      <td>Manage project learnings.</td>
+      <td><code>show learnings</code>, <code>what have we learned</code>, <code>manage project learnings</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-make-pdf">make-pdf</a></td>
+      <td>Turn any markdown file into a publication-quality PDF.</td>
+      <td><code>markdown to pdf</code>, <code>generate pdf</code>, <code>make pdf</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-office-hours">office-hours</a></td>
+      <td>YC Office Hours — two modes.</td>
+      <td><code>brainstorm this</code>, <code>is this worth building</code>, <code>help me think through</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-open-gstack-browser">open-gstack-browser</a></td>
+      <td>Launch GStack Browser — AI-controlled Chromium with the sidebar extension baked in.</td>
+      <td><code>open gstack browser</code>, <code>launch chromium</code>, <code>show me the browser</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-pair-agent">pair-agent</a></td>
+      <td>Pair a remote AI agent with your browser.</td>
+      <td><code>pair with agent</code>, <code>connect remote agent</code>, <code>share my browser</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-plan-ceo-review">plan-ceo-review</a></td>
+      <td>CEO/founder-mode plan review.</td>
+      <td><code>think bigger</code>, <code>expand scope</code>, <code>strategy review</code></td>
+      <td>Yes</td>
+    </tr>
+<tr>
+      <td><a href="#skill-plan-design-review">plan-design-review</a></td>
+      <td>Designer's eye plan review — interactive, like CEO and Eng review.</td>
+      <td><code>design plan review</code>, <code>review ux plan</code>, <code>check design decisions</code></td>
+      <td>Yes</td>
+    </tr>
+<tr>
+      <td><a href="#skill-plan-devex-review">plan-devex-review</a></td>
+      <td>Interactive developer experience plan review.</td>
+      <td><code>developer experience review</code>, <code>dx plan review</code>, <code>check developer onboarding</code></td>
+      <td>Yes</td>
+    </tr>
+<tr>
+      <td><a href="#skill-plan-eng-review">plan-eng-review</a></td>
+      <td>Eng manager-mode plan review.</td>
+      <td><code>review architecture</code>, <code>eng plan review</code>, <code>check the implementation plan</code></td>
+      <td>Yes</td>
+    </tr>
+<tr>
+      <td><a href="#skill-plan-tune">plan-tune</a></td>
+      <td>Self-tuning question sensitivity + developer psychographic for gstack (v1: observational).</td>
+      <td><code>tune questions</code>, <code>stop asking me that</code>, <code>too many questions</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-qa">qa</a></td>
+      <td>Systematically QA test a web application and fix bugs found.</td>
+      <td><code>qa test this</code>, <code>find bugs on site</code>, <code>test the site</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-qa-only">qa-only</a></td>
+      <td>Report-only QA testing.</td>
+      <td><code>qa report only</code>, <code>just report bugs</code>, <code>test but dont fix</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-retro">retro</a></td>
+      <td>Weekly engineering retrospective.</td>
+      <td><code>weekly retro</code>, <code>what did we ship</code>, <code>engineering retrospective</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-review">review</a></td>
+      <td>Pre-landing PR review.</td>
+      <td><code>review this pr</code>, <code>code review</code>, <code>check my diff</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-scrape">scrape</a></td>
+      <td>Pull data from a web page.</td>
+      <td><code>scrape this page</code>, <code>get data from</code>, <code>pull from</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-setup-browser-cookies">setup-browser-cookies</a></td>
+      <td>Import cookies from your real Chromium browser into the headless browse session.</td>
+      <td><code>import browser cookies</code>, <code>login to test site</code>, <code>setup authenticated session</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-setup-deploy">setup-deploy</a></td>
+      <td>Configure deployment settings for /land-and-deploy.</td>
+      <td><code>configure deploy</code>, <code>setup deployment</code>, <code>set deploy platform</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-setup-gbrain">setup-gbrain</a></td>
+      <td>Set up gbrain for this coding agent: install the CLI, initialize a local PGLite or Supabase brain, register MCP, capture per-remote trust policy.</td>
+      <td><code>setup gbrain</code>, <code>install gbrain</code>, <code>connect gbrain</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-ship">ship</a></td>
+      <td>Ship workflow: detect + merge base branch, run tests, review diff, bump VERSION, update CHANGELOG, commit, push, create PR.</td>
+      <td><code>ship it</code>, <code>create a pr</code>, <code>push to main</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-skillify">skillify</a></td>
+      <td>Codify the most recent successful /scrape flow into a permanent browser-skill on disk.</td>
+      <td><code>skillify</code>, <code>codify this scrape</code>, <code>save this scrape</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-sync-gbrain">sync-gbrain</a></td>
+      <td>Keep gbrain current with this repo's code and refresh agent search guidance in CLAUDE.</td>
+      <td><code>sync gbrain</code>, <code>refresh gbrain</code>, <code>reindex repo</code></td>
+      <td>—</td>
+    </tr>
+<tr>
+      <td><a href="#skill-unfreeze">unfreeze</a></td>
+      <td>Clear the freeze boundary set by /freeze, allowing edits to all directories again.</td>
+      <td><code>unfreeze edits</code>, <code>unlock all directories</code>, <code>remove edit restrictions</code></td>
+      <td>—</td>
+    </tr>
+</tbody>
+</table>
+
+<h2>Full Catalog</h2>
+<div id="catalog">
+<div class="skill-card" id="skill-autoplan">
+      <div class="skill-header">
+        <h3>/autoplan</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 3</span>
+          
+        </div>
+      </div>
+      <div class="description">Auto-review pipeline — reads the full CEO, design, eng, and DX review skills from disk<br>and runs them sequentially with auto-decisions using 6 decision principles. Surfaces<br>taste decisions (close approaches, borderline scope, codex disagreements) at a final<br>approval gate. One command, fully reviewed plan out.<br>Use when asked to &quot;auto review&quot;, &quot;autoplan&quot;, &quot;run all reviews&quot;, &quot;review this plan<br>automatically&quot;, or &quot;make the decisions for me&quot;.<br>Proactively suggest when the user has a plan file and wants to run the full review<br>gauntlet without answering 15-30 intermediate questions. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">run all reviews</span> <span class="badge trigger">automatic review pipeline</span> <span class="badge trigger">auto plan review</span></div>
+      <div class="section"><strong>Voice:</strong> <span class="badge voice">auto plan</span> <span class="badge voice">automatic review</span></div>
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Edit</span> <span class="badge tool">Glob</span> <span class="badge tool">Grep</span> <span class="badge tool">WebSearch</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-benchmark">
+      <div class="skill-header">
+        <h3>/benchmark</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 1</span>
+          
+        </div>
+      </div>
+      <div class="description">Performance regression detection using the browse daemon. Establishes<br>baselines for page load times, Core Web Vitals, and resource sizes.<br>Compares before/after on every PR. Tracks performance trends over time.<br>Use when: &quot;performance&quot;, &quot;benchmark&quot;, &quot;page speed&quot;, &quot;lighthouse&quot;, &quot;web vitals&quot;,<br>&quot;bundle size&quot;, &quot;load time&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">performance benchmark</span> <span class="badge trigger">check page speed</span> <span class="badge trigger">detect performance regression</span></div>
+      <div class="section"><strong>Voice:</strong> <span class="badge voice">speed test</span> <span class="badge voice">check performance</span></div>
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Glob</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-benchmark-models">
+      <div class="skill-header">
+        <h3>/benchmark-models</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 1</span>
+          
+        </div>
+      </div>
+      <div class="description">Cross-model benchmark for gstack skills. Runs the same prompt through Claude,<br>GPT (via Codex CLI), and Gemini side-by-side — compares latency, tokens, cost,<br>and optionally quality via LLM judge. Answers &quot;which model is actually best<br>for this skill?&quot; with data instead of vibes. Separate from /benchmark, which<br>measures web page performance. Use when: &quot;benchmark models&quot;, &quot;compare models&quot;,<br>&quot;which model is best for X&quot;, &quot;cross-model comparison&quot;, &quot;model shootout&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">cross model benchmark</span> <span class="badge trigger">compare claude gpt gemini</span> <span class="badge trigger">benchmark skill across models</span> <span class="badge trigger">which model should I use</span></div>
+      <div class="section"><strong>Voice:</strong> <span class="badge voice">compare models</span> <span class="badge voice">model shootout</span> <span class="badge voice">which model is best</span></div>
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-browse">
+      <div class="skill-header">
+        <h3>/browse</h3>
+        <div class="skill-meta">
+          <span class="version">v1.1.0</span>
+          <span class="tier">Tier 1</span>
+          
+        </div>
+      </div>
+      <div class="description">Fast headless browser for QA testing and site dogfooding. Navigate any URL, interact with<br>elements, verify page state, diff before/after actions, take annotated screenshots, check<br>responsive layouts, test forms and uploads, handle dialogs, and assert element states.<br>~100ms per command. Use when you need to test a feature, verify a deployment, dogfood a<br>user flow, or file a bug with evidence. Use when asked to &quot;open in browser&quot;, &quot;test the<br>site&quot;, &quot;take a screenshot&quot;, or &quot;dogfood this&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">browse a page</span> <span class="badge trigger">headless browser</span> <span class="badge trigger">take page screenshot</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-canary">
+      <div class="skill-header">
+        <h3>/canary</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 2</span>
+          
+        </div>
+      </div>
+      <div class="description">Post-deploy canary monitoring. Watches the live app for console errors,<br>performance regressions, and page failures using the browse daemon. Takes<br>periodic screenshots, compares against pre-deploy baselines, and alerts<br>on anomalies. Use when: &quot;monitor deploy&quot;, &quot;canary&quot;, &quot;post-deploy check&quot;,<br>&quot;watch production&quot;, &quot;verify deploy&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">monitor after deploy</span> <span class="badge trigger">canary check</span> <span class="badge trigger">watch for errors post-deploy</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Glob</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-careful">
+      <div class="skill-header">
+        <h3>/careful</h3>
+        <div class="skill-meta">
+          <span class="version">v0.1.0</span>
+          <span class="tier">Tier —</span>
+          
+        </div>
+      </div>
+      <div class="description">Safety guardrails for destructive commands. Warns before rm -rf, DROP TABLE,<br>force-push, git reset --hard, kubectl delete, and similar destructive operations.<br>User can override each warning. Use when touching prod, debugging live systems,<br>or working in a shared environment. Use when asked to &quot;be careful&quot;, &quot;safety mode&quot;,<br>&quot;prod mode&quot;, or &quot;careful mode&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">be careful</span> <span class="badge trigger">warn before destructive</span> <span class="badge trigger">safety mode</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span></div>
+    </div>
+<div class="skill-card" id="skill-claude">
+      <div class="skill-header">
+        <h3>/claude</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 3</span>
+          
+        </div>
+      </div>
+      <div class="description">Claude Code CLI wrapper for non-Claude hosts - three modes. Review: independent<br>diff review via claude -p. Challenge: adversarial failure-mode review. Consult:<br>ask Claude about the repo with read-only file tools. Use when asked for &quot;claude<br>review&quot;, &quot;claude challenge&quot;, &quot;ask claude&quot;, &quot;second opinion from claude&quot;, or<br>&quot;outside voice&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">claude review</span> <span class="badge trigger">claude challenge</span> <span class="badge trigger">ask claude</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-codex">
+      <div class="skill-header">
+        <h3>/codex</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 3</span>
+          
+        </div>
+      </div>
+      <div class="description">OpenAI Codex CLI wrapper — three modes. Code review: independent diff review via<br>codex review with pass/fail gate. Challenge: adversarial mode that tries to break<br>your code. Consult: ask codex anything with session continuity for follow-ups.<br>The &quot;200 IQ autistic developer&quot; second opinion. Use when asked to &quot;codex review&quot;,<br>&quot;codex challenge&quot;, &quot;ask codex&quot;, &quot;second opinion&quot;, or &quot;consult codex&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">codex review</span> <span class="badge trigger">second opinion</span> <span class="badge trigger">outside voice challenge</span></div>
+      <div class="section"><strong>Voice:</strong> <span class="badge voice">code x</span> <span class="badge voice">code ex</span> <span class="badge voice">get another opinion</span></div>
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Glob</span> <span class="badge tool">Grep</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-context-restore">
+      <div class="skill-header">
+        <h3>/context-restore</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 2</span>
+          
+        </div>
+      </div>
+      <div class="description">Restore working context saved earlier by /context-save. Loads the most recent<br>saved state (across all branches by default) so you can pick up where you<br>left off — even across Conductor workspace handoffs.<br>Use when asked to &quot;resume&quot;, &quot;restore context&quot;, &quot;where was I&quot;, or<br>&quot;pick up where I left off&quot;. Pair with /context-save.<br>Formerly /checkpoint resume — renamed because Claude Code treats /checkpoint<br>as a native rewind alias in current environments. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">resume where i left off</span> <span class="badge trigger">restore context</span> <span class="badge trigger">where was i</span> <span class="badge trigger">pick up where i left off</span> <span class="badge trigger">context restore</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Glob</span> <span class="badge tool">Grep</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-context-save">
+      <div class="skill-header">
+        <h3>/context-save</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 2</span>
+          
+        </div>
+      </div>
+      <div class="description">Save working context. Captures git state, decisions made, and remaining work<br>so any future session can pick up without losing a beat.<br>Use when asked to &quot;save progress&quot;, &quot;save state&quot;, &quot;context save&quot;, or<br>&quot;save my work&quot;. Pair with /context-restore to resume later.<br>Formerly /checkpoint — renamed because Claude Code treats /checkpoint as a<br>native rewind alias in current environments, which was shadowing this skill.<br>(gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">save progress</span> <span class="badge trigger">save state</span> <span class="badge trigger">save my work</span> <span class="badge trigger">context save</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Glob</span> <span class="badge tool">Grep</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-cso">
+      <div class="skill-header">
+        <h3>/cso</h3>
+        <div class="skill-meta">
+          <span class="version">v2.0.0</span>
+          <span class="tier">Tier 2</span>
+          
+        </div>
+      </div>
+      <div class="description">Chief Security Officer mode. Infrastructure-first security audit: secrets archaeology,<br>dependency supply chain, CI/CD pipeline security, LLM/AI security, skill supply chain<br>scanning, plus OWASP Top 10, STRIDE threat modeling, and active verification.<br>Two modes: daily (zero-noise, 8/10 confidence gate) and comprehensive (monthly deep<br>scan, 2/10 bar). Trend tracking across audit runs.<br>Use when: &quot;security audit&quot;, &quot;threat model&quot;, &quot;pentest review&quot;, &quot;OWASP&quot;, &quot;CSO review&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">security audit</span> <span class="badge trigger">check for vulnerabilities</span> <span class="badge trigger">owasp review</span></div>
+      <div class="section"><strong>Voice:</strong> <span class="badge voice">see-so</span> <span class="badge voice">see so</span> <span class="badge voice">security review</span> <span class="badge voice">security check</span> <span class="badge voice">vulnerability scan</span> <span class="badge voice">run security</span></div>
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Grep</span> <span class="badge tool">Glob</span> <span class="badge tool">Write</span> <span class="badge tool">Agent</span> <span class="badge tool">WebSearch</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-design-consultation">
+      <div class="skill-header">
+        <h3>/design-consultation</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 3</span>
+          
+        </div>
+      </div>
+      <div class="description">Design consultation: understands your product, researches the landscape, proposes a<br>complete design system (aesthetic, typography, color, layout, spacing, motion), and<br>generates font+color preview pages. Creates DESIGN.md as your project's design source<br>of truth. For existing sites, use /plan-design-review to infer the system instead.<br>Use when asked to &quot;design system&quot;, &quot;brand guidelines&quot;, or &quot;create DESIGN.md&quot;.<br>Proactively suggest when starting a new project's UI with no existing<br>design system or DESIGN.md. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">design system</span> <span class="badge trigger">create a brand</span> <span class="badge trigger">design from scratch</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Edit</span> <span class="badge tool">Glob</span> <span class="badge tool">Grep</span> <span class="badge tool">AskUserQuestion</span> <span class="badge tool">WebSearch</span></div>
+    </div>
+<div class="skill-card" id="skill-design-html">
+      <div class="skill-header">
+        <h3>/design-html</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 2</span>
+          
+        </div>
+      </div>
+      <div class="description">Design finalization: generates production-quality Pretext-native HTML/CSS.<br>Works with approved mockups from /design-shotgun, CEO plans from /plan-ceo-review,<br>design review context from /plan-design-review, or from scratch with a user<br>description. Text actually reflows, heights are computed, layouts are dynamic.<br>30KB overhead, zero deps. Smart API routing: picks the right Pretext patterns<br>for each design type. Use when: &quot;finalize this design&quot;, &quot;turn this into HTML&quot;,<br>&quot;build me a page&quot;, &quot;implement this design&quot;, or after any planning skill.<br>Proactively suggest when user has approved a design or has a plan ready. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">build the design</span> <span class="badge trigger">code the mockup</span> <span class="badge trigger">make design real</span></div>
+      <div class="section"><strong>Voice:</strong> <span class="badge voice">build the design</span> <span class="badge voice">code the mockup</span> <span class="badge voice">make it real</span></div>
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Edit</span> <span class="badge tool">Glob</span> <span class="badge tool">Grep</span> <span class="badge tool">Agent</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-design-review">
+      <div class="skill-header">
+        <h3>/design-review</h3>
+        <div class="skill-meta">
+          <span class="version">v2.0.0</span>
+          <span class="tier">Tier 4</span>
+          
+        </div>
+      </div>
+      <div class="description">Designer's eye QA: finds visual inconsistency, spacing issues, hierarchy problems,<br>AI slop patterns, and slow interactions — then fixes them. Iteratively fixes issues<br>in source code, committing each fix atomically and re-verifying with before/after<br>screenshots. For plan-mode design review (before implementation), use /plan-design-review.<br>Use when asked to &quot;audit the design&quot;, &quot;visual QA&quot;, &quot;check if it looks good&quot;, or &quot;design polish&quot;.<br>Proactively suggest when the user mentions visual inconsistencies or<br>wants to polish the look of a live site. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">visual design audit</span> <span class="badge trigger">design qa</span> <span class="badge trigger">fix design issues</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Edit</span> <span class="badge tool">Glob</span> <span class="badge tool">Grep</span> <span class="badge tool">AskUserQuestion</span> <span class="badge tool">WebSearch</span></div>
+    </div>
+<div class="skill-card" id="skill-design-shotgun">
+      <div class="skill-header">
+        <h3>/design-shotgun</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 2</span>
+          
+        </div>
+      </div>
+      <div class="description">Design shotgun: generate multiple AI design variants, open a comparison board,<br>collect structured feedback, and iterate. Standalone design exploration you can<br>run anytime. Use when: &quot;explore designs&quot;, &quot;show me options&quot;, &quot;design variants&quot;,<br>&quot;visual brainstorm&quot;, or &quot;I don't like how this looks&quot;.<br>Proactively suggest when the user describes a UI feature but hasn't seen<br>what it could look like. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">explore design variants</span> <span class="badge trigger">show me design options</span> <span class="badge trigger">visual design brainstorm</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Glob</span> <span class="badge tool">Grep</span> <span class="badge tool">Agent</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-devex-review">
+      <div class="skill-header">
+        <h3>/devex-review</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 3</span>
+          
+        </div>
+      </div>
+      <div class="description">Live developer experience audit. Uses the browse tool to actually TEST the<br>developer experience: navigates docs, tries the getting started flow, times<br>TTHW, screenshots error messages, evaluates CLI help text. Produces a DX<br>scorecard with evidence. Compares against /plan-devex-review scores if they<br>exist (the boomerang: plan said 3 minutes, reality says 8). Use when asked to<br>&quot;test the DX&quot;, &quot;DX audit&quot;, &quot;developer experience test&quot;, or &quot;try the<br>onboarding&quot;. Proactively suggest after shipping a developer-facing feature. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">live dx audit</span> <span class="badge trigger">test developer experience</span> <span class="badge trigger">measure onboarding time</span></div>
+      <div class="section"><strong>Voice:</strong> <span class="badge voice">dx audit</span> <span class="badge voice">test the developer experience</span> <span class="badge voice">try the onboarding</span> <span class="badge voice">developer experience test</span></div>
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Read</span> <span class="badge tool">Edit</span> <span class="badge tool">Grep</span> <span class="badge tool">Glob</span> <span class="badge tool">Bash</span> <span class="badge tool">AskUserQuestion</span> <span class="badge tool">WebSearch</span></div>
+    </div>
+<div class="skill-card" id="skill-document-release">
+      <div class="skill-header">
+        <h3>/document-release</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 2</span>
+          
+        </div>
+      </div>
+      <div class="description">Post-ship documentation update. Reads all project docs, cross-references the<br>diff, updates README/ARCHITECTURE/CONTRIBUTING/CLAUDE.md to match what shipped,<br>polishes CHANGELOG voice, cleans up TODOS, and optionally bumps VERSION. Use when<br>asked to &quot;update the docs&quot;, &quot;sync documentation&quot;, or &quot;post-ship docs&quot;.<br>Proactively suggest after a PR is merged or code is shipped. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">update docs after ship</span> <span class="badge trigger">document what changed</span> <span class="badge trigger">post-ship docs</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Edit</span> <span class="badge tool">Grep</span> <span class="badge tool">Glob</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-freeze">
+      <div class="skill-header">
+        <h3>/freeze</h3>
+        <div class="skill-meta">
+          <span class="version">v0.1.0</span>
+          <span class="tier">Tier —</span>
+          
+        </div>
+      </div>
+      <div class="description">Restrict file edits to a specific directory for the session. Blocks Edit and<br>Write outside the allowed path. Use when debugging to prevent accidentally<br>&quot;fixing&quot; unrelated code, or when you want to scope changes to one module.<br>Use when asked to &quot;freeze&quot;, &quot;restrict edits&quot;, &quot;only edit this folder&quot;,<br>or &quot;lock down edits&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">freeze edits to directory</span> <span class="badge trigger">lock editing scope</span> <span class="badge trigger">restrict file changes</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-gstack-upgrade">
+      <div class="skill-header">
+        <h3>/gstack-upgrade</h3>
+        <div class="skill-meta">
+          <span class="version">v1.1.0</span>
+          <span class="tier">Tier —</span>
+          
+        </div>
+      </div>
+      <div class="description">Upgrade gstack to the latest version. Detects global vs vendored install,<br>runs the upgrade, and shows what's new. Use when asked to &quot;upgrade gstack&quot;,<br>&quot;update gstack&quot;, or &quot;get latest version&quot;.</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">upgrade gstack</span> <span class="badge trigger">update gstack version</span> <span class="badge trigger">get latest gstack</span></div>
+      <div class="section"><strong>Voice:</strong> <span class="badge voice">upgrade the tools</span> <span class="badge voice">update the tools</span> <span class="badge voice">gee stack upgrade</span> <span class="badge voice">g stack upgrade</span></div>
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-guard">
+      <div class="skill-header">
+        <h3>/guard</h3>
+        <div class="skill-meta">
+          <span class="version">v0.1.0</span>
+          <span class="tier">Tier —</span>
+          
+        </div>
+      </div>
+      <div class="description">Full safety mode: destructive command warnings + directory-scoped edits.<br>Combines /careful (warns before rm -rf, DROP TABLE, force-push, etc.) with<br>/freeze (blocks edits outside a specified directory). Use for maximum safety<br>when touching prod or debugging live systems. Use when asked to &quot;guard mode&quot;,<br>&quot;full safety&quot;, &quot;lock it down&quot;, or &quot;maximum safety&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">full safety mode</span> <span class="badge trigger">guard against mistakes</span> <span class="badge trigger">maximum safety</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-health">
+      <div class="skill-header">
+        <h3>/health</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 2</span>
+          
+        </div>
+      </div>
+      <div class="description">Code quality dashboard. Wraps existing project tools (type checker, linter,<br>test runner, dead code detector, shell linter), computes a weighted composite<br>0-10 score, and tracks trends over time. Use when: &quot;health check&quot;,<br>&quot;code quality&quot;, &quot;how healthy is the codebase&quot;, &quot;run all checks&quot;,<br>&quot;quality score&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">code health check</span> <span class="badge trigger">quality dashboard</span> <span class="badge trigger">how healthy is codebase</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Edit</span> <span class="badge tool">Glob</span> <span class="badge tool">Grep</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-investigate">
+      <div class="skill-header">
+        <h3>/investigate</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 2</span>
+          
+        </div>
+      </div>
+      <div class="description">Systematic debugging with root cause investigation. Four phases: investigate,<br>analyze, hypothesize, implement. Iron Law: no fixes without root cause.<br>Use when asked to &quot;debug this&quot;, &quot;fix this bug&quot;, &quot;why is this broken&quot;,<br>&quot;investigate this error&quot;, or &quot;root cause analysis&quot;.<br>Proactively invoke this skill (do NOT debug directly) when the user reports<br>errors, 500 errors, stack traces, unexpected behavior, &quot;it was working<br>yesterday&quot;, or is troubleshooting why something stopped working. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">debug this</span> <span class="badge trigger">fix this bug</span> <span class="badge trigger">why is this broken</span> <span class="badge trigger">root cause analysis</span> <span class="badge trigger">investigate this error</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Edit</span> <span class="badge tool">Grep</span> <span class="badge tool">Glob</span> <span class="badge tool">AskUserQuestion</span> <span class="badge tool">WebSearch</span></div>
+    </div>
+<div class="skill-card" id="skill-land-and-deploy">
+      <div class="skill-header">
+        <h3>/land-and-deploy</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 4</span>
+          
+        </div>
+      </div>
+      <div class="description">Land and deploy workflow. Merges the PR, waits for CI and deploy,<br>verifies production health via canary checks. Takes over after /ship<br>creates the PR. Use when: &quot;merge&quot;, &quot;land&quot;, &quot;deploy&quot;, &quot;merge and verify&quot;,<br>&quot;land it&quot;, &quot;ship it to production&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">merge and deploy</span> <span class="badge trigger">land the pr</span> <span class="badge trigger">ship to production</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Glob</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-landing-report">
+      <div class="skill-header">
+        <h3>/landing-report</h3>
+        <div class="skill-meta">
+          <span class="version">v0.1.0</span>
+          <span class="tier">Tier —</span>
+          
+        </div>
+      </div>
+      <div class="description">Read-only queue dashboard for workspace-aware ship. Shows which VERSION slots<br>are currently claimed by open PRs, which sibling Conductor workspaces have<br>WIP work likely to ship soon, and what slot /ship would pick next. No<br>mutations — just a snapshot. Use when asked to &quot;landing report&quot;, &quot;what's in<br>the queue&quot;, &quot;show me open PRs&quot;, or &quot;which version do I claim next&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">landing report</span> <span class="badge trigger">version queue</span> <span class="badge trigger">ship queue</span> <span class="badge trigger">what version comes next</span> <span class="badge trigger">show open PR versions</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span></div>
+    </div>
+<div class="skill-card" id="skill-learn">
+      <div class="skill-header">
+        <h3>/learn</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 2</span>
+          
+        </div>
+      </div>
+      <div class="description">Manage project learnings. Review, search, prune, and export what gstack<br>has learned across sessions. Use when asked to &quot;what have we learned&quot;,<br>&quot;show learnings&quot;, &quot;prune stale learnings&quot;, or &quot;export learnings&quot;.<br>Proactively suggest when the user asks about past patterns or wonders<br>&quot;didn't we fix this before?&quot;</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">show learnings</span> <span class="badge trigger">what have we learned</span> <span class="badge trigger">manage project learnings</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Edit</span> <span class="badge tool">AskUserQuestion</span> <span class="badge tool">Glob</span> <span class="badge tool">Grep</span></div>
+    </div>
+<div class="skill-card" id="skill-make-pdf">
+      <div class="skill-header">
+        <h3>/make-pdf</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 1</span>
+          
+        </div>
+      </div>
+      <div class="description">Turn any markdown file into a publication-quality PDF. Proper 1in margins,<br>intelligent page breaks, page numbers, cover pages, running headers, curly<br>quotes and em dashes, clickable TOC, diagonal DRAFT watermark. Not a draft<br>artifact — a finished artifact. Use when asked to &quot;make a PDF&quot;, &quot;export to<br>PDF&quot;, &quot;turn this markdown into a PDF&quot;, or &quot;generate a document&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">markdown to pdf</span> <span class="badge trigger">generate pdf</span> <span class="badge trigger">make pdf</span> <span class="badge trigger">export pdf</span></div>
+      <div class="section"><strong>Voice:</strong> <span class="badge voice">make this a pdf</span> <span class="badge voice">make it a pdf</span> <span class="badge voice">export to pdf</span> <span class="badge voice">turn this into a pdf</span> <span class="badge voice">turn this markdown into a pdf</span> <span class="badge voice">generate a pdf</span> <span class="badge voice">make a pdf from</span> <span class="badge voice">pdf this markdown</span></div>
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-office-hours">
+      <div class="skill-header">
+        <h3>/office-hours</h3>
+        <div class="skill-meta">
+          <span class="version">v2.0.0</span>
+          <span class="tier">Tier 3</span>
+          
+        </div>
+      </div>
+      <div class="description">YC Office Hours — two modes. Startup mode: six forcing questions that expose<br>demand reality, status quo, desperate specificity, narrowest wedge, observation,<br>and future-fit. Builder mode: design thinking brainstorming for side projects,<br>hackathons, learning, and open source. Saves a design doc.<br>Use when asked to &quot;brainstorm this&quot;, &quot;I have an idea&quot;, &quot;help me think through<br>this&quot;, &quot;office hours&quot;, or &quot;is this worth building&quot;.<br>Proactively invoke this skill (do NOT answer directly) when the user describes<br>a new product idea, asks whether something is worth building, wants to think<br>through design decisions for something that doesn't exist yet, or is exploring<br>a concept before any code is written.<br>Use before /plan-ceo-review or /plan-eng-review. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">brainstorm this</span> <span class="badge trigger">is this worth building</span> <span class="badge trigger">help me think through</span> <span class="badge trigger">office hours</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Grep</span> <span class="badge tool">Glob</span> <span class="badge tool">Write</span> <span class="badge tool">Edit</span> <span class="badge tool">AskUserQuestion</span> <span class="badge tool">WebSearch</span></div>
+    </div>
+<div class="skill-card" id="skill-open-gstack-browser">
+      <div class="skill-header">
+        <h3>/open-gstack-browser</h3>
+        <div class="skill-meta">
+          <span class="version">v0.2.0</span>
+          <span class="tier">Tier —</span>
+          
+        </div>
+      </div>
+      <div class="description">Launch GStack Browser — AI-controlled Chromium with the sidebar extension baked in.<br>Opens a visible browser window where you can watch every action in real time.<br>The sidebar shows a live activity feed and chat. Anti-bot stealth built in.<br>Use when asked to &quot;open gstack browser&quot;, &quot;launch browser&quot;, &quot;connect chrome&quot;,<br>&quot;open chrome&quot;, &quot;real browser&quot;, &quot;launch chrome&quot;, &quot;side panel&quot;, or &quot;control my browser&quot;.</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">open gstack browser</span> <span class="badge trigger">launch chromium</span> <span class="badge trigger">show me the browser</span></div>
+      <div class="section"><strong>Voice:</strong> <span class="badge voice">show me the browser</span></div>
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-pair-agent">
+      <div class="skill-header">
+        <h3>/pair-agent</h3>
+        <div class="skill-meta">
+          <span class="version">v0.1.0</span>
+          <span class="tier">Tier —</span>
+          
+        </div>
+      </div>
+      <div class="description">Pair a remote AI agent with your browser. One command generates a setup key and<br>prints instructions the other agent can follow to connect. Works with OpenClaw,<br>Hermes, Codex, Cursor, or any agent that can make HTTP requests. The remote agent<br>gets its own tab with scoped access (read+write by default, admin on request).<br>Use when asked to &quot;pair agent&quot;, &quot;connect agent&quot;, &quot;share browser&quot;, &quot;remote browser&quot;,<br>&quot;let another agent use my browser&quot;, or &quot;give browser access&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">pair with agent</span> <span class="badge trigger">connect remote agent</span> <span class="badge trigger">share my browser</span></div>
+      <div class="section"><strong>Voice:</strong> <span class="badge voice">pair agent</span> <span class="badge voice">connect agent</span> <span class="badge voice">share my browser</span> <span class="badge voice">remote browser access</span></div>
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-plan-ceo-review">
+      <div class="skill-header">
+        <h3>/plan-ceo-review</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 3</span>
+          <span class="interactive">Interactive</span>
+        </div>
+      </div>
+      <div class="description">CEO/founder-mode plan review. Rethink the problem, find the 10-star product,<br>challenge premises, expand scope when it creates a better product. Four modes:<br>SCOPE EXPANSION (dream big), SELECTIVE EXPANSION (hold scope + cherry-pick<br>expansions), HOLD SCOPE (maximum rigor), SCOPE REDUCTION (strip to essentials).<br>Use when asked to &quot;think bigger&quot;, &quot;expand scope&quot;, &quot;strategy review&quot;, &quot;rethink this&quot;,<br>or &quot;is this ambitious enough&quot;.<br>Proactively suggest when the user is questioning scope or ambition of a plan,<br>or when the plan feels like it could be thinking bigger. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">think bigger</span> <span class="badge trigger">expand scope</span> <span class="badge trigger">strategy review</span> <span class="badge trigger">rethink this plan</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Read</span> <span class="badge tool">Grep</span> <span class="badge tool">Glob</span> <span class="badge tool">Bash</span> <span class="badge tool">AskUserQuestion</span> <span class="badge tool">WebSearch</span></div>
+    </div>
+<div class="skill-card" id="skill-plan-design-review">
+      <div class="skill-header">
+        <h3>/plan-design-review</h3>
+        <div class="skill-meta">
+          <span class="version">v2.0.0</span>
+          <span class="tier">Tier 3</span>
+          <span class="interactive">Interactive</span>
+        </div>
+      </div>
+      <div class="description">Designer's eye plan review — interactive, like CEO and Eng review.<br>Rates each design dimension 0-10, explains what would make it a 10,<br>then fixes the plan to get there. Works in plan mode. For live site<br>visual audits, use /design-review. Use when asked to &quot;review the design plan&quot;<br>or &quot;design critique&quot;.<br>Proactively suggest when the user has a plan with UI/UX components that<br>should be reviewed before implementation. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">design plan review</span> <span class="badge trigger">review ux plan</span> <span class="badge trigger">check design decisions</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Read</span> <span class="badge tool">Edit</span> <span class="badge tool">Grep</span> <span class="badge tool">Glob</span> <span class="badge tool">Bash</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-plan-devex-review">
+      <div class="skill-header">
+        <h3>/plan-devex-review</h3>
+        <div class="skill-meta">
+          <span class="version">v2.0.0</span>
+          <span class="tier">Tier 3</span>
+          <span class="interactive">Interactive</span>
+        </div>
+      </div>
+      <div class="description">Interactive developer experience plan review. Explores developer personas,<br>benchmarks against competitors, designs magical moments, and traces friction<br>points before scoring. Three modes: DX EXPANSION (competitive advantage),<br>DX POLISH (bulletproof every touchpoint), DX TRIAGE (critical gaps only).<br>Use when asked to &quot;DX review&quot;, &quot;developer experience audit&quot;, &quot;devex review&quot;,<br>or &quot;API design review&quot;.<br>Proactively suggest when the user has a plan for developer-facing products<br>(APIs, CLIs, SDKs, libraries, platforms, docs). (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">developer experience review</span> <span class="badge trigger">dx plan review</span> <span class="badge trigger">check developer onboarding</span></div>
+      <div class="section"><strong>Voice:</strong> <span class="badge voice">dx review</span> <span class="badge voice">developer experience review</span> <span class="badge voice">devex review</span> <span class="badge voice">devex audit</span> <span class="badge voice">API design review</span> <span class="badge voice">onboarding review</span></div>
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Read</span> <span class="badge tool">Edit</span> <span class="badge tool">Grep</span> <span class="badge tool">Glob</span> <span class="badge tool">Bash</span> <span class="badge tool">AskUserQuestion</span> <span class="badge tool">WebSearch</span></div>
+    </div>
+<div class="skill-card" id="skill-plan-eng-review">
+      <div class="skill-header">
+        <h3>/plan-eng-review</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 3</span>
+          <span class="interactive">Interactive</span>
+        </div>
+      </div>
+      <div class="description">Eng manager-mode plan review. Lock in the execution plan — architecture,<br>data flow, diagrams, edge cases, test coverage, performance. Walks through<br>issues interactively with opinionated recommendations. Use when asked to<br>&quot;review the architecture&quot;, &quot;engineering review&quot;, or &quot;lock in the plan&quot;.<br>Proactively suggest when the user has a plan or design doc and is about to<br>start coding — to catch architecture issues before implementation. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">review architecture</span> <span class="badge trigger">eng plan review</span> <span class="badge trigger">check the implementation plan</span></div>
+      <div class="section"><strong>Voice:</strong> <span class="badge voice">tech review</span> <span class="badge voice">technical review</span> <span class="badge voice">plan engineering review</span></div>
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Grep</span> <span class="badge tool">Glob</span> <span class="badge tool">AskUserQuestion</span> <span class="badge tool">Bash</span> <span class="badge tool">WebSearch</span></div>
+    </div>
+<div class="skill-card" id="skill-plan-tune">
+      <div class="skill-header">
+        <h3>/plan-tune</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 2</span>
+          
+        </div>
+      </div>
+      <div class="description">Self-tuning question sensitivity + developer psychographic for gstack (v1: observational).<br>Review which AskUserQuestion prompts fire across gstack skills, set per-question preferences<br>(never-ask / always-ask / ask-only-for-one-way), inspect the dual-track<br>profile (what you declared vs what your behavior suggests), and enable/disable<br>question tuning. Conversational interface — no CLI syntax required.<br><br>Use when asked to &quot;tune questions&quot;, &quot;stop asking me that&quot;, &quot;too many questions&quot;,<br>&quot;show my profile&quot;, &quot;what questions have I been asked&quot;, &quot;show my vibe&quot;,<br>&quot;developer profile&quot;, or &quot;turn off question tuning&quot;. (gstack)<br><br>Proactively suggest when the user says the same gstack question has come up before,<br>or when they explicitly override a recommendation for the Nth time.</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">tune questions</span> <span class="badge trigger">stop asking me that</span> <span class="badge trigger">too many questions</span> <span class="badge trigger">show my profile</span> <span class="badge trigger">show my vibe</span> <span class="badge trigger">developer profile</span> <span class="badge trigger">turn off question tuning</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Edit</span> <span class="badge tool">AskUserQuestion</span> <span class="badge tool">Glob</span> <span class="badge tool">Grep</span></div>
+    </div>
+<div class="skill-card" id="skill-qa">
+      <div class="skill-header">
+        <h3>/qa</h3>
+        <div class="skill-meta">
+          <span class="version">v2.0.0</span>
+          <span class="tier">Tier 4</span>
+          
+        </div>
+      </div>
+      <div class="description">Systematically QA test a web application and fix bugs found. Runs QA testing,<br>then iteratively fixes bugs in source code, committing each fix atomically and<br>re-verifying. Use when asked to &quot;qa&quot;, &quot;QA&quot;, &quot;test this site&quot;, &quot;find bugs&quot;,<br>&quot;test and fix&quot;, or &quot;fix what's broken&quot;.<br>Proactively suggest when the user says a feature is ready for testing<br>or asks &quot;does this work?&quot;. Three tiers: Quick (critical/high only),<br>Standard (+ medium), Exhaustive (+ cosmetic). Produces before/after health scores,<br>fix evidence, and a ship-readiness summary. For report-only mode, use /qa-only. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">qa test this</span> <span class="badge trigger">find bugs on site</span> <span class="badge trigger">test the site</span></div>
+      <div class="section"><strong>Voice:</strong> <span class="badge voice">quality check</span> <span class="badge voice">test the app</span> <span class="badge voice">run QA</span></div>
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Edit</span> <span class="badge tool">Glob</span> <span class="badge tool">Grep</span> <span class="badge tool">AskUserQuestion</span> <span class="badge tool">WebSearch</span></div>
+    </div>
+<div class="skill-card" id="skill-qa-only">
+      <div class="skill-header">
+        <h3>/qa-only</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 4</span>
+          
+        </div>
+      </div>
+      <div class="description">Report-only QA testing. Systematically tests a web application and produces a<br>structured report with health score, screenshots, and repro steps — but never<br>fixes anything. Use when asked to &quot;just report bugs&quot;, &quot;qa report only&quot;, or<br>&quot;test but don't fix&quot;. For the full test-fix-verify loop, use /qa instead.<br>Proactively suggest when the user wants a bug report without any code changes. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">qa report only</span> <span class="badge trigger">just report bugs</span> <span class="badge trigger">test but dont fix</span></div>
+      <div class="section"><strong>Voice:</strong> <span class="badge voice">bug report</span> <span class="badge voice">just check for bugs</span></div>
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">AskUserQuestion</span> <span class="badge tool">WebSearch</span></div>
+    </div>
+<div class="skill-card" id="skill-retro">
+      <div class="skill-header">
+        <h3>/retro</h3>
+        <div class="skill-meta">
+          <span class="version">v2.0.0</span>
+          <span class="tier">Tier 2</span>
+          
+        </div>
+      </div>
+      <div class="description">Weekly engineering retrospective. Analyzes commit history, work patterns,<br>and code quality metrics with persistent history and trend tracking.<br>Team-aware: breaks down per-person contributions with praise and growth areas.<br>Use when asked to &quot;weekly retro&quot;, &quot;what did we ship&quot;, or &quot;engineering retrospective&quot;.<br>Proactively suggest at the end of a work week or sprint. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">weekly retro</span> <span class="badge trigger">what did we ship</span> <span class="badge trigger">engineering retrospective</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Glob</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-review">
+      <div class="skill-header">
+        <h3>/review</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 4</span>
+          
+        </div>
+      </div>
+      <div class="description">Pre-landing PR review. Analyzes diff against the base branch for SQL safety, LLM trust<br>boundary violations, conditional side effects, and other structural issues. Use when<br>asked to &quot;review this PR&quot;, &quot;code review&quot;, &quot;pre-landing review&quot;, or &quot;check my diff&quot;.<br>Proactively suggest when the user is about to merge or land code changes. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">review this pr</span> <span class="badge trigger">code review</span> <span class="badge trigger">check my diff</span> <span class="badge trigger">pre-landing review</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Edit</span> <span class="badge tool">Write</span> <span class="badge tool">Grep</span> <span class="badge tool">Glob</span> <span class="badge tool">Agent</span> <span class="badge tool">AskUserQuestion</span> <span class="badge tool">WebSearch</span></div>
+    </div>
+<div class="skill-card" id="skill-scrape">
+      <div class="skill-header">
+        <h3>/scrape</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier —</span>
+          
+        </div>
+      </div>
+      <div class="description">Pull data from a web page. First call on a new intent prototypes the flow<br>via $B primitives and returns JSON. Subsequent calls on a matching intent<br>route to a codified browser-skill and return in ~200ms. Read-only — for<br>mutating flows (form fills, clicks, submissions), use /automate.<br>Use when asked to &quot;scrape&quot;, &quot;get data from&quot;, &quot;pull&quot;, &quot;extract from&quot;, or<br>&quot;what's on&quot; a page. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">scrape this page</span> <span class="badge trigger">get data from</span> <span class="badge trigger">pull from</span> <span class="badge trigger">extract from</span> <span class="badge trigger">what is on</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-setup-browser-cookies">
+      <div class="skill-header">
+        <h3>/setup-browser-cookies</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 1</span>
+          
+        </div>
+      </div>
+      <div class="description">Import cookies from your real Chromium browser into the headless browse session.<br>Opens an interactive picker UI where you select which cookie domains to import.<br>Use before QA testing authenticated pages. Use when asked to &quot;import cookies&quot;,<br>&quot;login to the site&quot;, or &quot;authenticate the browser&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">import browser cookies</span> <span class="badge trigger">login to test site</span> <span class="badge trigger">setup authenticated session</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-setup-deploy">
+      <div class="skill-header">
+        <h3>/setup-deploy</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 2</span>
+          
+        </div>
+      </div>
+      <div class="description">Configure deployment settings for /land-and-deploy. Detects your deploy<br>platform (Fly.io, Render, Vercel, Netlify, Heroku, GitHub Actions, custom),<br>production URL, health check endpoints, and deploy status commands. Writes<br>the configuration to CLAUDE.md so all future deploys are automatic.<br>Use when: &quot;setup deploy&quot;, &quot;configure deployment&quot;, &quot;set up land-and-deploy&quot;,<br>&quot;how do I deploy with gstack&quot;, &quot;add deploy config&quot;.</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">configure deploy</span> <span class="badge trigger">setup deployment</span> <span class="badge trigger">set deploy platform</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Edit</span> <span class="badge tool">Glob</span> <span class="badge tool">Grep</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-setup-gbrain">
+      <div class="skill-header">
+        <h3>/setup-gbrain</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 2</span>
+          
+        </div>
+      </div>
+      <div class="description">Set up gbrain for this coding agent: install the CLI, initialize a<br>local PGLite or Supabase brain, register MCP, capture per-remote trust<br>policy. One command from zero to &quot;gbrain is running, and this agent<br>can call it.&quot; Use when: &quot;setup gbrain&quot;, &quot;connect gbrain&quot;, &quot;start<br>gbrain&quot;, &quot;install gbrain&quot;, &quot;configure gbrain for this machine&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">setup gbrain</span> <span class="badge trigger">install gbrain</span> <span class="badge trigger">connect gbrain</span> <span class="badge trigger">start gbrain</span> <span class="badge trigger">configure gbrain</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Edit</span> <span class="badge tool">Glob</span> <span class="badge tool">Grep</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-ship">
+      <div class="skill-header">
+        <h3>/ship</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 4</span>
+          
+        </div>
+      </div>
+      <div class="description">Ship workflow: detect + merge base branch, run tests, review diff, bump VERSION,<br>update CHANGELOG, commit, push, create PR. Use when asked to &quot;ship&quot;, &quot;deploy&quot;,<br>&quot;push to main&quot;, &quot;create a PR&quot;, &quot;merge and push&quot;, or &quot;get it deployed&quot;.<br>Proactively invoke this skill (do NOT push/PR directly) when the user says code<br>is ready, asks about deploying, wants to push code up, or asks to create a PR. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">ship it</span> <span class="badge trigger">create a pr</span> <span class="badge trigger">push to main</span> <span class="badge trigger">deploy this</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Edit</span> <span class="badge tool">Grep</span> <span class="badge tool">Glob</span> <span class="badge tool">Agent</span> <span class="badge tool">AskUserQuestion</span> <span class="badge tool">WebSearch</span></div>
+    </div>
+<div class="skill-card" id="skill-skillify">
+      <div class="skill-header">
+        <h3>/skillify</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier —</span>
+          
+        </div>
+      </div>
+      <div class="description">Codify the most recent successful /scrape flow into a permanent<br>browser-skill on disk. Future /scrape calls with the same intent run<br>the codified script in ~200ms instead of re-driving the page. Walks<br>back through the conversation, synthesizes script.ts + script.test.ts<br>+ fixture, runs the test in a temp dir, and asks before committing.<br>Use when asked to &quot;skillify&quot;, &quot;codify&quot;, &quot;save this scrape&quot;, or<br>&quot;make this permanent&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">skillify</span> <span class="badge trigger">codify this scrape</span> <span class="badge trigger">save this scrape</span> <span class="badge trigger">make this permanent</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-sync-gbrain">
+      <div class="skill-header">
+        <h3>/sync-gbrain</h3>
+        <div class="skill-meta">
+          <span class="version">v1.0.0</span>
+          <span class="tier">Tier 2</span>
+          
+        </div>
+      </div>
+      <div class="description">Keep gbrain current with this repo's code and refresh agent search<br>guidance in CLAUDE.md. Wraps the gstack-gbrain-sync orchestrator with<br>state probing, native code-surface registration, capability checks,<br>and a verdict block. Re-runnable, idempotent. Use when: &quot;sync gbrain&quot;,<br>&quot;refresh gbrain&quot;, &quot;re-index this repo&quot;, &quot;gbrain search isn't finding<br>things&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">sync gbrain</span> <span class="badge trigger">refresh gbrain</span> <span class="badge trigger">reindex repo</span> <span class="badge trigger">update gbrain</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span> <span class="badge tool">Write</span> <span class="badge tool">Edit</span> <span class="badge tool">Glob</span> <span class="badge tool">Grep</span> <span class="badge tool">AskUserQuestion</span></div>
+    </div>
+<div class="skill-card" id="skill-unfreeze">
+      <div class="skill-header">
+        <h3>/unfreeze</h3>
+        <div class="skill-meta">
+          <span class="version">v0.1.0</span>
+          <span class="tier">Tier —</span>
+          
+        </div>
+      </div>
+      <div class="description">Clear the freeze boundary set by /freeze, allowing edits to all directories<br>again. Use when you want to widen edit scope without ending the session.<br>Use when asked to &quot;unfreeze&quot;, &quot;unlock edits&quot;, &quot;remove freeze&quot;, or<br>&quot;allow all edits&quot;. (gstack)</div>
+      <div class="section"><strong>Triggers:</strong> <span class="badge trigger">unfreeze edits</span> <span class="badge trigger">unlock all directories</span> <span class="badge trigger">remove edit restrictions</span></div>
+      
+      <div class="section"><strong>Tools:</strong> <span class="badge tool">Bash</span> <span class="badge tool">Read</span></div>
+    </div>
+</div>
+
+<script>
+document.getElementById('search').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('#cheat-table tbody tr').forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+  document.querySelectorAll('.skill-card').forEach(card => {
+    card.style.display = card.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+</script>
+
+</body>
+</html>
