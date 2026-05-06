@@ -176,6 +176,36 @@ and `scripts/gen-skill-docs.ts` (the sources of truth), (2) run `bun run gen:ski
 to regenerate all SKILL.md files, (3) stage the regenerated files. Accepting one side's
 generated output silently drops the other side's template changes.
 
+**Description budget (Claude host only).** Claude Code allocates ~2% of remaining
+context for skill descriptions. With 47+ skills, full descriptions blow past this
+budget and Claude drops skills silently. The generator auto-truncates descriptions
+to ≤200 chars for the Claude host (first sentence + "Use when:" phrase). To override
+auto-truncation for a specific skill, add `description-short:` to the `.tmpl`:
+
+```yaml
+description-short: |
+  YC Office Hours — startup diagnostic + builder brainstorm.
+  Use when: "brainstorm", "I have an idea", "office hours".
+```
+
+The `.tmpl` keeps the full description untouched — no merge conflicts with upstream.
+
+**Auto-inject triggers.** The generator extracts quoted phrases from "Use when" and
+"Proactively invoke" sentences in the `.tmpl` description and injects them into the
+`triggers:` field of the generated SKILL.md. This catches routing phrases that live
+in descriptions but were never migrated to `triggers:`. Runs at generation time only;
+`.tmpl` files are never modified. Duplicates and substring overlaps are deduplicated.
+
+**Voice-triggers are NOT routing triggers.** `voice-triggers:` contains pronunciation
+guides (e.g., `"see-so"` for CSO, `"cue-ay"` for QA). These help Claude match spoken
+names to skills. They must NEVER be injected into `triggers:` — they are a separate
+field with a separate purpose.
+
+**Skill catalog.** `bun run gen:catalog` generates `docs/skill-catalog.html` — a
+self-contained HTML page with full upstream descriptions, usage flows, and search.
+Published at `cs.bogometer.com/gstack/` via Apache include at
+`/etc/apache2/includes/gstack.conf` on cs.
+
 ## Platform-agnostic design
 
 Skills must NEVER hardcode framework-specific commands, file patterns, or directory
