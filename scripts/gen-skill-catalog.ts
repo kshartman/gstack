@@ -197,7 +197,8 @@ function generateHtml(skills: SkillInfo[]): string {
   .flow h3 { margin-bottom: 0.5rem; }
   .flow p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.75rem; }
   .flow-chain { display: flex; align-items: center; flex-wrap: wrap; gap: 0.25rem; }
-  .flow-chain .step { background: #1f6feb22; color: var(--accent); border: 1px solid #1f6feb44; padding: 0.3rem 0.7rem; border-radius: 4px; font-size: 0.85rem; font-weight: 500; white-space: nowrap; }
+  .flow-chain .step { background: #1f6feb22; color: var(--accent); border: 1px solid #1f6feb44; padding: 0.3rem 0.7rem; border-radius: 4px; font-size: 0.85rem; font-weight: 500; white-space: nowrap; text-decoration: none; }
+  a.step:hover { background: #1f6feb44; text-decoration: none; }
   .flow-chain .step.action { background: #30363d; color: var(--text-muted); border-color: var(--border); }
   .flow-chain .arrow { color: var(--text-muted); font-size: 0.8rem; padding: 0 0.15rem; }
 
@@ -237,12 +238,12 @@ ${cheatRows}
   <h3>Personal tool / system utility</h3>
   <p>Side projects that touch the filesystem, processes, or network still need security review. System tools especially.</p>
   <div class="flow-chain">
-    <span class="step">/office-hours</span><span class="arrow">&rarr;</span>
-    <span class="step">/plan-eng-review</span><span class="arrow">&rarr;</span>
+    <a href="#skill-office-hours" class="step">/office-hours</a><span class="arrow">&rarr;</span>
+    <a href="#skill-plan-eng-review" class="step">/plan-eng-review</a><span class="arrow">&rarr;</span>
     <span class="step action">build</span><span class="arrow">&rarr;</span>
-    <span class="step">/qa</span><span class="arrow">&rarr;</span>
-    <span class="step">/cso</span><span class="arrow">&rarr;</span>
-    <span class="step">/ship</span>
+    <a href="#skill-qa" class="step">/qa</a><span class="arrow">&rarr;</span>
+    <a href="#skill-cso" class="step">/cso</a><span class="arrow">&rarr;</span>
+    <a href="#skill-ship" class="step">/ship</a>
   </div>
 </div>
 
@@ -250,14 +251,14 @@ ${cheatRows}
   <h3>Shipping a product feature</h3>
   <p>Full pipeline: validate the idea, review from CEO/eng/design angles, build, test, security audit, ship, and watch production.</p>
   <div class="flow-chain">
-    <span class="step">/office-hours</span><span class="arrow">&rarr;</span>
-    <span class="step">/plan-ceo-review</span><span class="arrow">&rarr;</span>
-    <span class="step">/plan-eng-review</span><span class="arrow">&rarr;</span>
+    <a href="#skill-office-hours" class="step">/office-hours</a><span class="arrow">&rarr;</span>
+    <a href="#skill-plan-ceo-review" class="step">/plan-ceo-review</a><span class="arrow">&rarr;</span>
+    <a href="#skill-plan-eng-review" class="step">/plan-eng-review</a><span class="arrow">&rarr;</span>
     <span class="step action">build</span><span class="arrow">&rarr;</span>
-    <span class="step">/qa</span><span class="arrow">&rarr;</span>
-    <span class="step">/cso</span><span class="arrow">&rarr;</span>
-    <span class="step">/ship</span><span class="arrow">&rarr;</span>
-    <span class="step">/canary</span>
+    <a href="#skill-qa" class="step">/qa</a><span class="arrow">&rarr;</span>
+    <a href="#skill-cso" class="step">/cso</a><span class="arrow">&rarr;</span>
+    <a href="#skill-ship" class="step">/ship</a><span class="arrow">&rarr;</span>
+    <a href="#skill-canary" class="step">/canary</a>
   </div>
 </div>
 
@@ -265,10 +266,10 @@ ${cheatRows}
   <h3>Contributing to open source</h3>
   <p>For repos you don't own. Investigate the issue, build the fix, self-review to match project conventions, then ship the PR.</p>
   <div class="flow-chain">
-    <span class="step">/investigate</span><span class="arrow">&rarr;</span>
+    <a href="#skill-investigate" class="step">/investigate</a><span class="arrow">&rarr;</span>
     <span class="step action">build</span><span class="arrow">&rarr;</span>
-    <span class="step">/review</span><span class="arrow">&rarr;</span>
-    <span class="step">/ship</span>
+    <a href="#skill-review" class="step">/review</a><span class="arrow">&rarr;</span>
+    <a href="#skill-ship" class="step">/ship</a>
   </div>
 </div>
 
@@ -276,10 +277,10 @@ ${cheatRows}
   <h3>Bug hunt</h3>
   <p>Something's broken. Systematic root-cause analysis, fix it, verify the fix, ship it.</p>
   <div class="flow-chain">
-    <span class="step">/investigate</span><span class="arrow">&rarr;</span>
+    <a href="#skill-investigate" class="step">/investigate</a><span class="arrow">&rarr;</span>
     <span class="step action">fix</span><span class="arrow">&rarr;</span>
-    <span class="step">/qa</span><span class="arrow">&rarr;</span>
-    <span class="step">/ship</span>
+    <a href="#skill-qa" class="step">/qa</a><span class="arrow">&rarr;</span>
+    <a href="#skill-ship" class="step">/ship</a>
   </div>
 </div>
 
@@ -287,10 +288,10 @@ ${cheatRows}
   <h3>Design from zero</h3>
   <p>No existing design system. Research the landscape, explore variants, build it, then polish.</p>
   <div class="flow-chain">
-    <span class="step">/design-consultation</span><span class="arrow">&rarr;</span>
-    <span class="step">/design-shotgun</span><span class="arrow">&rarr;</span>
-    <span class="step">/design-html</span><span class="arrow">&rarr;</span>
-    <span class="step">/design-review</span>
+    <a href="#skill-design-consultation" class="step">/design-consultation</a><span class="arrow">&rarr;</span>
+    <a href="#skill-design-shotgun" class="step">/design-shotgun</a><span class="arrow">&rarr;</span>
+    <a href="#skill-design-html" class="step">/design-html</a><span class="arrow">&rarr;</span>
+    <a href="#skill-design-review" class="step">/design-review</a>
   </div>
 </div>
 
@@ -298,12 +299,12 @@ ${cheatRows}
   <h3>Full plan review (one command)</h3>
   <p>Run CEO, design, eng, and DX reviews sequentially with auto-decisions. One command, fully reviewed plan out.</p>
   <div class="flow-chain">
-    <span class="step">/autoplan</span>
+    <a href="#skill-autoplan" class="step">/autoplan</a>
     <span class="arrow">=</span>
-    <span class="step">/plan-ceo-review</span><span class="arrow">&rarr;</span>
-    <span class="step">/plan-design-review</span><span class="arrow">&rarr;</span>
-    <span class="step">/plan-eng-review</span><span class="arrow">&rarr;</span>
-    <span class="step">/plan-devex-review</span>
+    <a href="#skill-plan-ceo-review" class="step">/plan-ceo-review</a><span class="arrow">&rarr;</span>
+    <a href="#skill-plan-design-review" class="step">/plan-design-review</a><span class="arrow">&rarr;</span>
+    <a href="#skill-plan-eng-review" class="step">/plan-eng-review</a><span class="arrow">&rarr;</span>
+    <a href="#skill-plan-devex-review" class="step">/plan-devex-review</a>
   </div>
 </div>
 
