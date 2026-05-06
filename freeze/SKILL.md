@@ -2,15 +2,12 @@
 name: freeze
 version: 0.1.0
 description: |
-  Restrict file edits to a specific directory for the session. Blocks Edit and
-  Write outside the allowed path. Use when debugging to prevent accidentally
-  "fixing" unrelated code, or when you want to scope changes to one module.
-  Use when asked to "freeze", "restrict edits", "only edit this folder",
-  or "lock down edits". (gstack)
+  Restrict file edits to a specific directory for the session. Use when debugging to prevent accidentally "fixing" unrelated code, or when you want to scope changes to one module.
 triggers:
   - freeze edits to directory
   - lock editing scope
   - restrict file changes
+  - fixing
 allowed-tools:
   - Bash
   - Read

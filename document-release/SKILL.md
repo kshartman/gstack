@@ -3,11 +3,7 @@ name: document-release
 preamble-tier: 2
 version: 1.0.0
 description: |
-  Post-ship documentation update. Reads all project docs, cross-references the
-  diff, updates README/ARCHITECTURE/CONTRIBUTING/CLAUDE.md to match what shipped,
-  polishes CHANGELOG voice, cleans up TODOS, and optionally bumps VERSION. Use when
-  asked to "update the docs", "sync documentation", or "post-ship docs".
-  Proactively suggest after a PR is merged or code is shipped. (gstack)
+  Post-ship documentation update. Use when asked to "update the docs", "sync documentation", or "post-ship docs".
 allowed-tools:
   - Bash
   - Read
@@ -20,6 +16,8 @@ triggers:
   - update docs after ship
   - document what changed
   - post-ship docs
+  - update the docs
+  - sync documentation
 ---
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
 <!-- Regenerate: bun run gen:skill-docs -->

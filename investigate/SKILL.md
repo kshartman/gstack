@@ -3,13 +3,7 @@ name: investigate
 preamble-tier: 2
 version: 1.0.0
 description: |
-  Systematic debugging with root cause investigation. Four phases: investigate,
-  analyze, hypothesize, implement. Iron Law: no fixes without root cause.
-  Use when asked to "debug this", "fix this bug", "why is this broken",
-  "investigate this error", or "root cause analysis".
-  Proactively invoke this skill (do NOT debug directly) when the user reports
-  errors, 500 errors, stack traces, unexpected behavior, "it was working
-  yesterday", or is troubleshooting why something stopped working. (gstack)
+  Systematic debugging with root cause investigation. Use when asked to "debug this", "fix this bug", "why is this broken", "investigate this error", or "root cause analysis".
 allowed-tools:
   - Bash
   - Read
@@ -25,6 +19,7 @@ triggers:
   - why is this broken
   - root cause analysis
   - investigate this error
+  - it was working yesterday
 hooks:
   PreToolUse:
     - matcher: "Edit"

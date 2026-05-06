@@ -169,9 +169,174 @@ function processVoiceTriggers(content: string): string {
 }
 
 // Export for testing
-export { extractVoiceTriggers, processVoiceTriggers };
+export { extractVoiceTriggers, processVoiceTriggers, extractDescriptionShort, condenseClaudeDescription };
 
+const CLAUDE_DESCRIPTION_LIMIT = 200;
 const OPENAI_SHORT_DESCRIPTION_LIMIT = 120;
+
+function extractDescriptionShort(content: string): string | null {
+  const fmStart = content.indexOf('---\n');
+  if (fmStart !== 0) return null;
+  const fmEnd = content.indexOf('\n---', fmStart + 4);
+  if (fmEnd === -1) return null;
+
+  const frontmatter = content.slice(fmStart + 4, fmEnd);
+  const lines = frontmatter.split('\n');
+  let inField = false;
+  const fieldLines: string[] = [];
+  for (const line of lines) {
+    if (line.match(/^description-short:\s*\|?\s*$/)) {
+      inField = true;
+      continue;
+    }
+    if (line.match(/^description-short:\s*\S/)) {
+      return line.replace(/^description-short:\s*/, '').trim();
+    }
+    if (inField) {
+      if (line === '' || line.match(/^\s/)) {
+        fieldLines.push(line.replace(/^  /, ''));
+      } else {
+        break;
+      }
+    }
+  }
+  return fieldLines.length > 0 ? fieldLines.join('\n').trim() : null;
+}
+
+function condenseClaudeDescription(description: string): string {
+  const collapsed = description.replace(/\s+/g, ' ').trim();
+  if (collapsed.length <= CLAUDE_DESCRIPTION_LIMIT) return collapsed;
+
+  const firstSentence = collapsed.match(/^[^.!]+[.!]/)?.[0] || '';
+  const useWhen = collapsed.match(/Use when[^.]*\./)?.[0] || '';
+  const combined = useWhen ? `${firstSentence} ${useWhen}` : firstSentence;
+  const result = combined.replace(/\s*\(gstack\)\s*/g, ' ').trim();
+
+  if (result.length <= CLAUDE_DESCRIPTION_LIMIT) return result;
+  const truncated = result.slice(0, CLAUDE_DESCRIPTION_LIMIT - 3);
+  const lastSpace = truncated.lastIndexOf(' ');
+  return `${lastSpace > 40 ? truncated.slice(0, lastSpace) : truncated}...`;
+}
+
+function truncateClaudeDescription(content: string, tmplContent: string): string {
+  const shortOverride = extractDescriptionShort(tmplContent);
+  const { description } = extractNameAndDescription(content);
+  if (!description) return content;
+
+  const newDesc = shortOverride || condenseClaudeDescription(description);
+  if (newDesc === description) return content;
+
+  const fmStart = content.indexOf('---\n');
+  if (fmStart !== 0) return content;
+  const fmEnd = content.indexOf('\n---', fmStart + 4);
+  if (fmEnd === -1) return content;
+
+  const frontmatter = content.slice(fmStart + 4, fmEnd);
+  const descMatch = frontmatter.match(/^description:\s*\|?\s*\n((?:\s.*\n|\n)*)/m);
+  if (!descMatch) return content;
+
+  const oldBlock = `description: |\n${descMatch[1]}`;
+  const newIndented = newDesc.split('\n').map(l => `  ${l}`).join('\n');
+  const newBlock = `description: |\n${newIndented}\n`;
+  return content.replace(oldBlock, newBlock);
+}
+
+/**
+ * Extract trigger phrases from description "Use when" sections.
+ * Parses patterns like: "debug this", "fix this bug", "why is this broken"
+ */
+function extractDescriptionTriggers(description: string): string[] {
+  const collapsed = description.replace(/\s+/g, ' ').trim();
+  const triggers: string[] = [];
+
+  // Match quoted phrases after "Use when" / "Proactively invoke" sections
+  const useWhenMatch = collapsed.match(/Use when[^.]*\./i);
+  const proactiveMatch = collapsed.match(/Proactively (?:invoke|suggest)[^.]*(?:\.[^.]*)*\./i);
+
+  for (const section of [useWhenMatch?.[0], proactiveMatch?.[0]]) {
+    if (!section) continue;
+    const quoted = section.matchAll(/"([^"]+)"/g);
+    for (const m of quoted) {
+      triggers.push(m[1].toLowerCase());
+    }
+  }
+
+  // Also extract unquoted comma-separated phrases after "Use when:"
+  // e.g. "Use when: security audit, threat model, pentest review"
+  const colonMatch = collapsed.match(/Use when:\s*([^.]+)\./i);
+  if (colonMatch) {
+    const phrases = colonMatch[1].split(/,\s*/).map(s => s.replace(/^["']|["']$/g, '').trim().toLowerCase());
+    for (const p of phrases) {
+      if (p.length > 2 && p.length < 80) triggers.push(p);
+    }
+  }
+
+  return [...new Set(triggers)];
+}
+
+/**
+ * Extract existing triggers: YAML list from content.
+ */
+function extractExistingTriggers(content: string): string[] {
+  const fmStart = content.indexOf('---\n');
+  if (fmStart !== 0) return [];
+  const fmEnd = content.indexOf('\n---', fmStart + 4);
+  if (fmEnd === -1) return [];
+  const frontmatter = content.slice(fmStart + 4, fmEnd);
+
+  const triggers: string[] = [];
+  let inTriggers = false;
+  for (const line of frontmatter.split('\n')) {
+    if (/^triggers:/.test(line)) { inTriggers = true; continue; }
+    if (inTriggers) {
+      const m = line.match(/^\s+-\s+(.+)$/);
+      if (m) triggers.push(m[1].toLowerCase().trim());
+      else if (!/^\s*$/.test(line) && !/^\s/.test(line)) break;
+    }
+  }
+  return triggers;
+}
+
+/**
+ * Auto-inject missing trigger phrases from description into triggers: field.
+ * Only adds phrases not already covered by existing triggers or voice-triggers.
+ */
+function autoInjectTriggers(content: string, tmplContent: string): string {
+  const { description: fullDesc } = extractNameAndDescription(tmplContent);
+  if (!fullDesc) return content;
+
+  const descTriggers = extractDescriptionTriggers(fullDesc);
+  if (descTriggers.length === 0) return content;
+
+  const existing = extractExistingTriggers(content);
+  const voiceTriggers = extractVoiceTriggers(tmplContent).map(t => t.toLowerCase());
+  const allExisting = new Set([...existing, ...voiceTriggers]);
+
+  // Find triggers not covered (exact or substring match against triggers + voice-triggers)
+  const missing = descTriggers.filter(dt =>
+    !allExisting.has(dt) &&
+    ![...allExisting].some(ex => ex.includes(dt) || dt.includes(ex))
+  );
+
+  if (missing.length === 0) return content;
+
+  // Find the triggers: block and append missing entries
+  const fmStart = content.indexOf('---\n');
+  if (fmStart !== 0) return content;
+  const fmEnd = content.indexOf('\n---', fmStart + 4);
+  if (fmEnd === -1) return content;
+
+  const triggersMatch = content.match(/^(triggers:\n(?:\s+-\s+.+\n)*)/m);
+  if (triggersMatch) {
+    const oldBlock = triggersMatch[1];
+    const newEntries = missing.map(t => `  - ${t}`).join('\n') + '\n';
+    return content.replace(oldBlock, oldBlock + newEntries);
+  }
+
+  // No triggers: field exists — insert one before the closing ---
+  const newBlock = `triggers:\n${missing.map(t => `  - ${t}`).join('\n')}\n`;
+  return content.slice(0, fmEnd) + '\n' + newBlock + content.slice(fmEnd);
+}
 
 function condenseOpenAIShortDescription(description: string): string {
   const firstParagraph = description.split(/\n\s*\n/)[0] || description;
@@ -460,11 +625,15 @@ function processTemplate(tmplPath: string, host: Host = 'claude'): { outputPath:
   // metadata gets the updated description with voice triggers included.
   const postProcessDescription = extractNameAndDescription(content).description;
 
-  // For Claude: strip sensitive: field (only Factory uses it)
+  // For Claude: strip sensitive: field, truncate descriptions for skill budget
   // For external hosts: route output, transform frontmatter, rewrite paths
   let symlinkLoop = false;
   if (host === 'claude') {
     content = transformFrontmatter(content, host);
+    content = truncateClaudeDescription(content, tmplContent);
+    content = autoInjectTriggers(content, tmplContent);
+    content = content.replace(/^description-short:\s*\|?\s*\n(?:\s+.*\n)*/m, '');
+    content = content.replace(/^description-short:\s*.*\n/m, '');
   } else {
     const result = processExternalHost(content, tmplContent, host, skillDir, postProcessDescription, ctx, extractedName || undefined);
     content = result.content;
