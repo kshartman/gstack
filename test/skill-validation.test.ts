@@ -1428,18 +1428,19 @@ describe('Skill trigger phrases', () => {
   ];
 
   for (const skill of SKILLS_REQUIRING_TRIGGERS) {
-    test(`${skill}/SKILL.md has "Use when" trigger phrases`, () => {
+    test(`${skill} template has "Use when" trigger phrases`, () => {
+      const tmplPath = path.join(ROOT, skill, 'SKILL.md.tmpl');
       const skillPath = path.join(ROOT, skill, 'SKILL.md');
-      if (!fs.existsSync(skillPath)) return;
-      const content = fs.readFileSync(skillPath, 'utf-8');
-      // Extract description from frontmatter
+      const source = fs.existsSync(tmplPath) ? tmplPath : skillPath;
+      if (!fs.existsSync(source)) return;
+      const content = fs.readFileSync(source, 'utf-8');
       const frontmatterEnd = content.indexOf('---', 4);
       const frontmatter = content.slice(0, frontmatterEnd);
       expect(frontmatter).toMatch(/Use when/i);
     });
   }
 
-  // Skills with proactive triggers should have "Proactively suggest" in description
+  // Skills with proactive triggers should have "Proactively suggest" in template description
   const SKILLS_REQUIRING_PROACTIVE = [
     'qa', 'qa-only', 'ship', 'review', 'investigate', 'office-hours',
     'plan-ceo-review', 'plan-eng-review', 'plan-design-review',
@@ -1447,10 +1448,12 @@ describe('Skill trigger phrases', () => {
   ];
 
   for (const skill of SKILLS_REQUIRING_PROACTIVE) {
-    test(`${skill}/SKILL.md has proactive routing phrase`, () => {
+    test(`${skill} template has proactive routing phrase`, () => {
+      const tmplPath = path.join(ROOT, skill, 'SKILL.md.tmpl');
       const skillPath = path.join(ROOT, skill, 'SKILL.md');
-      if (!fs.existsSync(skillPath)) return;
-      const content = fs.readFileSync(skillPath, 'utf-8');
+      const source = fs.existsSync(tmplPath) ? tmplPath : skillPath;
+      if (!fs.existsSync(source)) return;
+      const content = fs.readFileSync(source, 'utf-8');
       const frontmatterEnd = content.indexOf('---', 4);
       const frontmatter = content.slice(0, frontmatterEnd);
       expect(frontmatter).toMatch(/Proactively (suggest|invoke)/i);

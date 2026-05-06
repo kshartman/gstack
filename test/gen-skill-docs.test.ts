@@ -2868,10 +2868,11 @@ describe('voice-triggers processing', () => {
     expect(processVoiceTriggers(content)).toBe(content);
   });
 
-  test('generated CSO SKILL.md contains voice triggers in description', () => {
-    const content = fs.readFileSync(path.join(ROOT, 'cso', 'SKILL.md'), 'utf-8');
-    expect(content).toContain('"see-so"');
-    expect(content).toContain('Voice triggers (speech-to-text aliases):');
+  test('CSO template has voice-triggers field', () => {
+    const tmplPath = path.join(ROOT, 'cso', 'SKILL.md.tmpl');
+    const tmpl = fs.readFileSync(tmplPath, 'utf-8');
+    expect(tmpl).toContain('voice-triggers:');
+    expect(tmpl).toContain('"see-so"');
   });
 
   test('generated CSO SKILL.md does NOT contain raw voice-triggers field', () => {
