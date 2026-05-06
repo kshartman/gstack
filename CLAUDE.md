@@ -203,8 +203,8 @@ field with a separate purpose.
 
 **Skill catalog.** `bun run gen:catalog` generates `docs/skill-catalog.html` — a
 self-contained HTML page with full upstream descriptions, usage flows, and search.
-Published at `cs.bogometer.com/gstack/` via Apache include at
-`/etc/apache2/includes/gstack.conf` on cs.
+Published on the internal web server via Apache include at
+`/etc/apache2/includes/gstack.conf`.
 
 ## Platform-agnostic design
 
