@@ -172,6 +172,39 @@ describe('gen-skill-docs', () => {
     }
   });
 
+  test('total skill listing fits within skillListingBudgetFraction (1.5% of 200K)', () => {
+    const CONTEXT_WINDOW = 200_000;
+    const BUDGET_FRACTION = 0.015;
+    const BUDGET_TOKENS = CONTEXT_WINDOW * BUDGET_FRACTION;
+    const CHARS_PER_TOKEN = 4;
+    const BUDGET_CHARS = BUDGET_TOKENS * CHARS_PER_TOKEN;
+
+    // Non-skill directories that setup skips when linking
+    const SKIP_DIRS = new Set(['node_modules', 'browse', 'claude', 'openclaw', 'contrib', 'connect-chrome']);
+
+    let totalChars = 0;
+    const breakdown: string[] = [];
+
+    for (const skill of CLAUDE_GENERATED_SKILLS) {
+      if (SKIP_DIRS.has(skill.dir)) continue;
+      const content = fs.readFileSync(path.join(ROOT, skill.dir, 'SKILL.md'), 'utf-8');
+      const description = extractDescription(content);
+      // Per-skill overhead: "- name: " prefix + newline in the listing
+      const entryChars = description.length + skill.name.length + 4;
+      totalChars += entryChars;
+      breakdown.push(`${skill.name}: ${entryChars} chars`);
+    }
+
+    const usedTokens = Math.round(totalChars / CHARS_PER_TOKEN);
+    const headroom = Math.round(BUDGET_TOKENS - usedTokens);
+    expect(usedTokens).toBeLessThanOrEqual(
+      BUDGET_TOKENS,
+      `Skill listing uses ~${usedTokens} tokens, budget is ${BUDGET_TOKENS} (1.5% of 200K). ` +
+      `Over by ~${-headroom} tokens. Compress descriptions or consolidate skills.\n` +
+      breakdown.join('\n'),
+    );
+  });
+
   test('Claude outside-voice skill is not generated for Claude host', () => {
     expect(fs.existsSync(path.join(ROOT, 'claude', 'SKILL.md.tmpl'))).toBe(true);
     expect(fs.existsSync(path.join(ROOT, 'claude', 'SKILL.md'))).toBe(false);
