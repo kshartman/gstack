@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import type { TemplateContext } from './types';
 
 export function generateSlugEval(ctx: TemplateContext): string {
@@ -373,6 +375,10 @@ export function generateCoAuthorTrailer(ctx: TemplateContext): string {
 }
 
 export function generateChangelogWorkflow(_ctx: TemplateContext): string {
+  const styleGuide = fs.readFileSync(
+    path.join(__dirname, 'changelog-style.md'), 'utf-8'
+  );
+
   return `## Step 13: CHANGELOG (auto-generate)
 
 1. Read \`CHANGELOG.md\` header to know the format.
@@ -396,7 +402,7 @@ export function generateChangelogWorkflow(_ctx: TemplateContext): string {
    - Infrastructure / tooling / tests
    - Refactoring
 
-5. **Write the CHANGELOG entry** covering ALL groups:
+5. **Write the CHANGELOG entry** following the style guide below and covering ALL groups:
    - If existing CHANGELOG entries on the branch already cover some commits, replace them with one unified entry for the new version
    - Categorize changes into applicable sections:
      - \`### Added\` — new features
@@ -406,12 +412,13 @@ export function generateChangelogWorkflow(_ctx: TemplateContext): string {
    - Write concise, descriptive bullet points
    - Insert after the file header (line 5), dated today
    - Format: \`## [X.Y.Z.W] - YYYY-MM-DD\`
-   - **Voice:** Lead with what the user can now **do** that they couldn't before. Use plain language, not implementation details. Never mention TODOS.md, internal tracking, or contributor-facing details.
 
 6. **Cross-check:** Compare your CHANGELOG entry against the commit list from step 2.
    Every commit must map to at least one bullet point. If any commit is unrepresented,
    add it now. If the branch has N commits spanning K themes, the CHANGELOG must
    reflect all K themes.
 
-**Do NOT ask the user to describe changes.** Infer from the diff and commit history.`;
+**Do NOT ask the user to describe changes.** Infer from the diff and commit history.
+
+${styleGuide}`;
 }
