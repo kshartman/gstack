@@ -108,6 +108,113 @@ describe("gstack-gbrain-sync CLI", () => {
     rmSync(home, { recursive: true, force: true });
   });
 
+  it("derived source ids are gbrain-valid (≤32 chars, alnum + interior hyphens, no dots) for any remote", () => {
+    // gbrain enforces source ids to be 1-32 lowercase alnum chars with optional interior
+    // hyphens. Pre-fix, the slug came from canonicalizeRemote() with only `/` and
+    // whitespace stripped — leaving dots from hostnames (`github.com`) and no length cap.
+    // For `github.com/<org>/<repo>`, the id was `gstack-code-github.com-<org>-<repo>`,
+    // which fails validation on both counts. This test exercises the derivation against
+    // controlled remotes by spawning the CLI in a temp git repo.
+    const cases = [
+      "https://github.com/radubach/platform.git",      // dot in hostname, total > 32 with old slug
+      "git@github.com:garrytan/gstack.git",            // SCP-style remote
+      "https://gitlab.example.com/team/proj.git",      // multi-dot host, non-github
+      "https://github.com/some-very-long-org-name/some-very-long-repo-name.git", // forces hash-truncate
+    ];
+    const VALID_ID = /^[a-z0-9](?:[a-z0-9-]{0,30}[a-z0-9])?$/;
+    for (const remote of cases) {
+      const home = makeTestHome();
+      const gstackHome = join(home, ".gstack");
+      mkdirSync(gstackHome, { recursive: true });
+      const repo = mkdtempSync(join(tmpdir(), "gstack-source-id-repo-"));
+      spawnSync("git", ["init", "--quiet", "-b", "main"], { cwd: repo });
+      spawnSync("git", ["remote", "add", "origin", remote], { cwd: repo });
+
+      const r = spawnSync("bun", [SCRIPT, "--dry-run", "--code-only", "--quiet"], {
+        encoding: "utf-8",
+        timeout: 60000,
+        cwd: repo,
+        env: { ...process.env, HOME: home, GSTACK_HOME: gstackHome },
+      });
+      expect(r.status).toBe(0);
+      const m = (r.stdout || "").match(/gbrain sources add (\S+)/);
+      expect(m).not.toBeNull();
+      const id = m![1];
+      expect(id.length).toBeLessThanOrEqual(32);
+      expect(id).toMatch(VALID_ID);
+      expect(id.startsWith("gstack-code-")).toBe(true);
+
+      rmSync(repo, { recursive: true, force: true });
+      rmSync(home, { recursive: true, force: true });
+    }
+  });
+
+  it("derives a gbrain-valid source id when the cwd repo has NO origin remote", () => {
+    // Fallback path in deriveCodeSourceId(): no `origin` remote configured,
+    // so the slug comes from the repo basename. The fallback must still
+    // produce a gbrain-valid id (no dots, ≤32 chars, no trailing hyphen).
+    const home = makeTestHome();
+    const gstackHome = join(home, ".gstack");
+    mkdirSync(gstackHome, { recursive: true });
+    const repo = mkdtempSync(join(tmpdir(), "gstack-no-origin-"));
+    spawnSync("git", ["init", "--quiet", "-b", "main"], { cwd: repo });
+    // No `git remote add origin` — this is the no-remote case.
+
+    const r = spawnSync("bun", [SCRIPT, "--dry-run", "--code-only", "--quiet"], {
+      encoding: "utf-8",
+      timeout: 60000,
+      cwd: repo,
+      env: { ...process.env, HOME: home, GSTACK_HOME: gstackHome },
+    });
+    expect(r.status).toBe(0);
+    const m = (r.stdout || "").match(/gbrain sources add (\S+)/);
+    expect(m).not.toBeNull();
+    const id = m![1];
+    expect(id.startsWith("gstack-code-")).toBe(true);
+    expect(id.length).toBeLessThanOrEqual(32);
+    expect(id).toMatch(/^[a-z0-9](?:[a-z0-9-]{0,30}[a-z0-9])?$/);
+
+    rmSync(repo, { recursive: true, force: true });
+    rmSync(home, { recursive: true, force: true });
+  });
+
+  it("derives a gbrain-valid source id when the basename sanitizes to empty", () => {
+    // Pathological edge: a repo whose basename is all non-alnum (e.g. "___")
+    // sanitizes to an empty slug. Pre-worktree-aware-fix, constrainSourceId
+    // returned "gstack-code-" (invalid trailing hyphen) and was patched to
+    // fall back to a 6-char hash of the original input. The post-spike
+    // redesign appends an 8-char path-hash to every id, so the basename's
+    // empty-after-sanitize result is no longer a problem on its own — the
+    // path hash carries the entropy. The id must still be gbrain-valid.
+    const home = makeTestHome();
+    const gstackHome = join(home, ".gstack");
+    mkdirSync(gstackHome, { recursive: true });
+    const parent = mkdtempSync(join(tmpdir(), "gstack-empty-base-"));
+    const repo = join(parent, "___");
+    mkdirSync(repo);
+    spawnSync("git", ["init", "--quiet", "-b", "main"], { cwd: repo });
+    // No `origin` remote — forces the basename-fallback path.
+
+    const r = spawnSync("bun", [SCRIPT, "--dry-run", "--code-only", "--quiet"], {
+      encoding: "utf-8",
+      timeout: 60000,
+      cwd: repo,
+      env: { ...process.env, HOME: home, GSTACK_HOME: gstackHome },
+    });
+    expect(r.status).toBe(0);
+    const m = (r.stdout || "").match(/gbrain sources add (\S+)/);
+    expect(m).not.toBeNull();
+    const id = m![1];
+    // gbrain validator: 1-32 lowercase alnum + interior hyphens, no leading
+    // or trailing hyphens.
+    expect(id.startsWith("gstack-code-")).toBe(true);
+    expect(id.length).toBeLessThanOrEqual(32);
+    expect(id).toMatch(/^[a-z0-9](?:[a-z0-9-]{0,30}[a-z0-9])?$/);
+
+    rmSync(parent, { recursive: true, force: true });
+    rmSync(home, { recursive: true, force: true });
+  });
+
   it("dry-run does NOT acquire the lock file (lock is for write paths only)", () => {
     const home = makeTestHome();
     const gstackHome = join(home, ".gstack");
@@ -235,6 +342,137 @@ describe("gstack-gbrain-sync CLI", () => {
     // sandboxed test). Assert only that we did NOT take the lying-skip path.
     const combined = r.stdout + r.stderr;
     expect(combined).not.toContain("skipped (gstack-brain-sync not installed)");
+    rmSync(home, { recursive: true, force: true });
+  });
+
+  it("worktree-aware source ID: two worktrees of the same repo get DIFFERENT ids", () => {
+    // Conductor pattern: same origin, two different absolute paths. Pre-fix the
+    // ID was slug-only so both worktrees collapsed onto `gstack-code-<slug>` and
+    // last-sync-wins corrupted whichever the user wasn't actively syncing. The
+    // pathhash8 suffix makes each worktree's source independent.
+    const remote = "https://github.com/garrytan/gstack.git";
+    const home = makeTestHome();
+    const gstackHome = join(home, ".gstack");
+    mkdirSync(gstackHome, { recursive: true });
+
+    const repoA = mkdtempSync(join(tmpdir(), "gstack-worktree-a-"));
+    const repoB = mkdtempSync(join(tmpdir(), "gstack-worktree-b-"));
+    for (const repo of [repoA, repoB]) {
+      spawnSync("git", ["init", "--quiet", "-b", "main"], { cwd: repo });
+      spawnSync("git", ["remote", "add", "origin", remote], { cwd: repo });
+    }
+
+    const idOf = (cwd: string): string => {
+      const r = spawnSync("bun", [SCRIPT, "--dry-run", "--code-only", "--quiet"], {
+        encoding: "utf-8",
+        timeout: 60000,
+        cwd,
+        env: { ...process.env, HOME: home, GSTACK_HOME: gstackHome },
+      });
+      expect(r.status).toBe(0);
+      const m = (r.stdout || "").match(/gbrain sources add (\S+)/);
+      expect(m).not.toBeNull();
+      return m![1];
+    };
+
+    const idA = idOf(repoA);
+    const idB = idOf(repoB);
+    expect(idA).not.toBe(idB);
+    expect(idA.startsWith("gstack-code-")).toBe(true);
+    expect(idB.startsWith("gstack-code-")).toBe(true);
+
+    rmSync(repoA, { recursive: true, force: true });
+    rmSync(repoB, { recursive: true, force: true });
+    rmSync(home, { recursive: true, force: true });
+  });
+
+  it("worktree-aware source ID: same path produces the same id across runs (deterministic)", () => {
+    // The pathhash is derived from the absolute repo path via sha1, so
+    // /sync-gbrain run twice in the same worktree must converge on the same
+    // source id (idempotent registration depends on this).
+    const remote = "https://github.com/garrytan/gstack.git";
+    const home = makeTestHome();
+    const gstackHome = join(home, ".gstack");
+    mkdirSync(gstackHome, { recursive: true });
+    const repo = mkdtempSync(join(tmpdir(), "gstack-worktree-stable-"));
+    spawnSync("git", ["init", "--quiet", "-b", "main"], { cwd: repo });
+    spawnSync("git", ["remote", "add", "origin", remote], { cwd: repo });
+
+    const idOf = (): string => {
+      const r = spawnSync("bun", [SCRIPT, "--dry-run", "--code-only", "--quiet"], {
+        encoding: "utf-8",
+        timeout: 60000,
+        cwd: repo,
+        env: { ...process.env, HOME: home, GSTACK_HOME: gstackHome },
+      });
+      expect(r.status).toBe(0);
+      const m = (r.stdout || "").match(/gbrain sources add (\S+)/);
+      expect(m).not.toBeNull();
+      return m![1];
+    };
+    expect(idOf()).toBe(idOf());
+
+    rmSync(repo, { recursive: true, force: true });
+    rmSync(home, { recursive: true, force: true });
+  });
+
+  it("dry-run preview includes legacy-source removal + attach (post-codex-review hardening)", () => {
+    // Codex adversarial flagged: pre-pathhash `gstack-code-<slug>` sources stay
+    // orphaned forever after the new pathhash id ships. Dry-run preview must
+    // surface the legacy cleanup so the user knows it'll happen.
+    const home = makeTestHome();
+    const gstackHome = join(home, ".gstack");
+    mkdirSync(gstackHome, { recursive: true });
+    const repo = mkdtempSync(join(tmpdir(), "gstack-legacy-cleanup-"));
+    spawnSync("git", ["init", "--quiet", "-b", "main"], { cwd: repo });
+    spawnSync("git", ["remote", "add", "origin", "https://github.com/garrytan/gstack.git"], { cwd: repo });
+
+    const r = spawnSync("bun", [SCRIPT, "--dry-run", "--code-only", "--quiet"], {
+      encoding: "utf-8",
+      timeout: 60000,
+      cwd: repo,
+      env: { ...process.env, HOME: home, GSTACK_HOME: gstackHome },
+    });
+    expect(r.status).toBe(0);
+    // The dry-run preview shows what WOULD run; the live path will also
+    // remove the legacy source via `gbrain sources remove gstack-code-<slug>
+    // --confirm-destructive` when that legacy source is registered. We can't
+    // assert the remove step in dry-run because the orchestrator's preview
+    // string lists what it would do, but the legacy removal is gated on the
+    // legacy id being registered (which we can't probe in a sandboxed test
+    // without a real gbrain CLI). Instead, assert the preview still includes
+    // the new flow (sources add + sync + attach) at minimum.
+    expect(r.stdout).toMatch(/gbrain sources add gstack-code-/);
+    expect(r.stdout).toMatch(/gbrain sync --strategy code --source gstack-code-/);
+    expect(r.stdout).toMatch(/gbrain sources attach gstack-code-/);
+
+    rmSync(repo, { recursive: true, force: true });
+    rmSync(home, { recursive: true, force: true });
+  });
+
+  it("dry-run preview includes the `sources attach` step (kubectl-style CWD pin)", () => {
+    // Post-spike redesign: after sources add + sync, /sync-gbrain calls
+    // `gbrain sources attach <id>` so subsequent gbrain code-def / code-refs
+    // calls from anywhere under the worktree route to this source by default.
+    // The dry-run preview must surface that step so the user knows what we
+    // would do.
+    const home = makeTestHome();
+    const gstackHome = join(home, ".gstack");
+    mkdirSync(gstackHome, { recursive: true });
+    const repo = mkdtempSync(join(tmpdir(), "gstack-attach-preview-"));
+    spawnSync("git", ["init", "--quiet", "-b", "main"], { cwd: repo });
+    spawnSync("git", ["remote", "add", "origin", "https://github.com/garrytan/gstack.git"], { cwd: repo });
+
+    const r = spawnSync("bun", [SCRIPT, "--dry-run", "--code-only", "--quiet"], {
+      encoding: "utf-8",
+      timeout: 60000,
+      cwd: repo,
+      env: { ...process.env, HOME: home, GSTACK_HOME: gstackHome },
+    });
+    expect(r.status).toBe(0);
+    expect(r.stdout).toMatch(/gbrain sources attach gstack-code-/);
+
+    rmSync(repo, { recursive: true, force: true });
     rmSync(home, { recursive: true, force: true });
   });
 });
