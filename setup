@@ -1045,3 +1045,4 @@ fi
 # telemetry=off: local analytics only, no Supabase sync.
 "$GSTACK_CONFIG" get upgrade_mode 2>/dev/null | grep -q . || "$GSTACK_CONFIG" set upgrade_mode manual 2>/dev/null || true
 "$GSTACK_CONFIG" get telemetry 2>/dev/null | grep -q . || "$GSTACK_CONFIG" set telemetry off 2>/dev/null || true
+mkdir -p ~/.gstack && touch ~/.gstack/.telemetry-prompted
