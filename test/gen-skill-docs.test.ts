@@ -2518,13 +2518,12 @@ describe('telemetry', () => {
     expect(content).toContain('gstack-config get telemetry');
   });
 
-  test('generated SKILL.md contains telemetry opt-in prompt', () => {
+  test('generated SKILL.md has telemetry nag suppressed (fork override)', () => {
     const content = fs.readFileSync(path.join(ROOT, 'SKILL.md'), 'utf-8');
-    expect(content).toContain('.telemetry-prompted');
-    expect(content).toContain('Help gstack get better');
-    expect(content).toContain('gstack-config set telemetry community');
-    expect(content).toContain('gstack-config set telemetry anonymous');
-    expect(content).toContain('gstack-config set telemetry off');
+    // Telemetry nag suppressed in this fork via generate-telemetry-prompt.ts
+    // returning empty string. Local JSONL logging still works.
+    expect(content).not.toContain('Help gstack get better');
+    expect(content).not.toContain('gstack-config set telemetry community');
   });
 
   test('generated SKILL.md contains telemetry epilogue', () => {
