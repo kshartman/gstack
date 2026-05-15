@@ -116,20 +116,15 @@ for key_val in "upgrade_mode: manual" "telemetry: off"; do
   grep -q "^${key}:" "$CFG" 2>/dev/null || echo "$key_val" >> "$CFG"
 done
 
-# If browse can't launch, offer to install OS-level Chromium deps
+# Check if Playwright Chromium is cached
 if [ "$(uname -s)" = "Linux" ]; then
-  BROWSE_BIN="$DEST/browse/dist/browse"
-  if [ -x "$BROWSE_BIN" ] && ! "$BROWSE_BIN" goto about:blank --snapshot text &>/dev/null; then
+  _PW_CACHE="$HOME/.cache/ms-playwright"
+  if [ ! -d "$_PW_CACHE" ] || ! ls "$_PW_CACHE"/chromium* &>/dev/null; then
     echo ""
-    echo "  Browser skills need OS-level Chromium dependencies."
-    if [ "$YES" -eq 1 ]; then
-      echo "  Installing via Playwright..."
-      sudo npx playwright install-deps chromium 2>&1 | tail -5
-    else
-      echo "  Run manually:"
-      echo "    sudo npx playwright install-deps chromium"
-      echo "  Note: text-based skills work fine without this."
-    fi
+    echo "  Playwright Chromium not found at $_PW_CACHE."
+    echo "  Browser skills (/qa, /browse, /design-review) need it."
+    echo "  Text-only skills work without it."
+    echo "  To install:  sudo npx playwright install-deps chromium"
   fi
 fi
 
@@ -176,25 +171,15 @@ for key_val in "upgrade_mode: manual" "telemetry: off"; do
   grep -q "^${key}:" "$CFG" 2>/dev/null || echo "$key_val" >> "$CFG"
 done
 
-# If browse can't launch, offer to install OS-level Chromium deps
+# Check if Playwright Chromium is cached
 if [ "$(uname -s)" = "Linux" ]; then
-  BROWSE_BIN="$DEST/browse/dist/browse"
-  if [ -x "$BROWSE_BIN" ] && ! "$BROWSE_BIN" goto about:blank --snapshot text &>/dev/null; then
+  _PW_CACHE="$HOME/.cache/ms-playwright"
+  if [ ! -d "$_PW_CACHE" ] || ! ls "$_PW_CACHE"/chromium* &>/dev/null; then
     echo ""
-    echo "  Browser skills need OS-level Chromium dependencies."
-    if [ "$YES" -eq 1 ]; then
-      echo "  Installing via Playwright..."
-      sudo npx playwright install-deps chromium 2>&1 | tail -5
-    else
-      read -rp "  Install Chromium OS deps via sudo? [y/N] " answer
-      if [[ "$answer" =~ ^[Yy]$ ]]; then
-        sudo npx playwright install-deps chromium 2>&1 | tail -5
-      else
-        echo "  Run manually when ready:"
-        echo "    sudo npx playwright install-deps chromium"
-        echo "  Note: text-based skills work fine without this."
-      fi
-    fi
+    echo "  Playwright Chromium not found at $_PW_CACHE."
+    echo "  Browser skills (/qa, /browse, /design-review) need it."
+    echo "  Text-only skills work without it."
+    echo "  To install:  sudo npx playwright install-deps chromium"
   fi
 fi
 
