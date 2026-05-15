@@ -403,6 +403,10 @@ link_claude_skill_dirs() {
       # Validate target isn't a symlink before creating the link
       if [ -L "$target/SKILL.md" ]; then rm "$target/SKILL.md"; fi
       ln -snf "$gstack_dir/$dir_name/SKILL.md" "$target/SKILL.md"
+      # Symlink bin/ if the skill has hook scripts
+      if [ -d "$gstack_dir/$dir_name/bin" ]; then
+        ln -snf "$gstack_dir/$dir_name/bin" "$target/bin"
+      fi
       linked+=("$link_name")
     fi
   done
